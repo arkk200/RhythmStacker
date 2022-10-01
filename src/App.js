@@ -1,7 +1,8 @@
+import Game from "./components/Stack/Game";
+
 function App() {
   return (
-    <div className="App">
-    </div>
+    <Game />
   );
 }
 
