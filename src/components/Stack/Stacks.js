@@ -12,14 +12,21 @@ function Stacks({ stackCount }) {
         depth: 3,
     }]);
     const stackRef = useRef();
-    if (stackCount !== 1) { // 먼저 연산한 후 렌더링 되게 함
-        stacks.current.push({ // 연산한 값을 토대로 너비, 높이 정의
+    if (stackCount !== 1) { // 처음 stackCount 값은 1임
+        console.log(stacks.current[stacks.current.length - 1].position, stacks.current.length);
+        stacks.current.push({ // 다음에 올 스택을 추가함
             position: {
-                x: stacks.current.length % 2 === 0 && stackCount > 2 ? stackRef.current.position.x : -10,
-                z: stacks.current.length % 2 === 0 && stackCount > 2 ? -10 : stackRef.current.position.z
+                x: stacks.current.length === 1 ? -10 
+                    : stacks.current.length % 2 === 0 ? stackRef.current.position.x - (stackRef.current.position.x - stacks.current[stacks.current.length - 2].position.x) / 2: -10,
+                z: stacks.current.length === 1 ? 0 
+                    : stacks.current.length % 2 === 0 ? -10 : stackRef.current.position.z - (stackRef.current.position.z - stacks.current[stacks.current.length - 2].position.z) / 2
             },
-            width: 3,
-            depth: 3,
+            width: stacks.current.length % 2 === 0 && stacks.current.length !== 1 ? 
+                stacks.current[stacks.current.length - 1].width - Math.abs(stacks.current[stacks.current.length - 2].position.x - stackRef.current.position.x)
+                : stacks.current[stacks.current.length - 1].width,
+            depth: stacks.current.length % 2 === 1 && stacks.current.length !== 1 ? 
+                stacks.current[stacks.current.length - 1].depth - Math.abs(stacks.current[stacks.current.length - 2].position.z - stackRef.current.position.z)
+                : stacks.current[stacks.current.length - 1].depth,
         });
     }
 
@@ -40,17 +47,24 @@ function Stacks({ stackCount }) {
                 obj.target = stackRef.current;
             }
         });
+        // console.log(`(${stacks.current[stacks.current.length - 1].position.x}, ${stacks.current[stacks.current.length - 1].position.z})`);
     });
 
     return (
         <>
-            {
+            {   // 움직이는 Stack
                 stacks.current.map((stack, index) => (
                     <Stack
                         position={[stack.position.x, index + 1, stack.position.z]} key={index} ref={stackRef}
                         args={[stack.width, 1, stack.depth]}
                     />
                 ))
+            }
+            {   // 걸친 Stack
+
+            }
+            {   // 걸치지 못한 Stack
+
             }
         </>
     )
