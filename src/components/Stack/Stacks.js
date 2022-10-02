@@ -1,5 +1,6 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
+import Stack from "./Stack/Stack";
 
 function Stacks({ stackCount }) {
     const stacks = useRef([{
@@ -31,10 +32,10 @@ function Stacks({ stackCount }) {
         <>
             {
                 stacks.current.map((stack, index) => (
-                    <mesh position={[stack.position.x, index + 1, stack.position.z]} key={index} ref={stackRef} >
-                        <boxGeometry args={[stack.width, 1, stack.depth]} />
-                        <meshPhongMaterial color="orange" />
-                    </mesh>
+                    <Stack 
+                        position={[stack.position.x, index + 1, stack.position.z]} key={index} ref={stackRef} 
+                        args={[stack.width, 1, stack.depth]}
+                    />
                 ))
             }
         </>
