@@ -17,7 +17,7 @@ function Game() {
         >
             <color attach="background" args={['#050505']} />
             <ambientLight intensity={0.3} />
-            <spotLight position={[7, 10, 1]} />
+            <spotLight position={[7, 10, 1]} angle={Math.PI / 2}/>
             <Stacks stackCount={stackCount} />
         </Canvas>
     )
