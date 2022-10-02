@@ -1,15 +1,14 @@
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { useState } from 'react';
 import Stacks from './Stacks';
 function Game() {
     const [stackCount, setStackCount] = useState(1);
-    const handleClick = () => {
-        setStackCount(current => current + 1);
-    }
+    const handleClick = () => setStackCount(current => current + 1);
+    
     return (
         <Canvas
             style={{ height: '100vh' }}
-            onClick={handleClick}
+            onMouseDown={handleClick}
             orthographic
             camera={{
                 zoom: 50,
