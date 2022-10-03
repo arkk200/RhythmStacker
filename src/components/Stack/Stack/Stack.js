@@ -1,10 +1,10 @@
 import { forwardRef } from "react";
 
-const Stack = forwardRef(({ position, args }, ref) => {
+const Stack = forwardRef(({ position, args, color }, ref) => {
     return (
         <mesh position={position} ref={ref} >
             <boxGeometry args={args} />
-            <meshPhongMaterial color="orange" />
+            <meshPhongMaterial color={color} />
         </mesh>
     )
 })
