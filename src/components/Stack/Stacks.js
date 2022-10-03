@@ -2,17 +2,17 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import Stack from "./Stack/Stack";
 import * as THREE from 'three';
-import { Physics, useBox } from "@react-three/cannon";
+// import { Physics, useBox } from "@react-three/cannon";
 import StackPhysics from "./StackPhysics/StackPhysics";
 
 let isEnd = false;
 
 const returnStackOverLapData = (stacksLength, stackPos, topStack, previousStack, spawnDistX, spawnDistZ) => {
     if (
-        (stacksLength % 2 === 0 ? 
-        topStack.width - Math.abs(previousStack.position.x - stackPos.x) 
-        : topStack.depth - Math.abs(previousStack.position.z - stackPos.z)) <= 0
-    ) { 
+        (stacksLength % 2 === 0 ?
+            topStack.width - Math.abs(previousStack.position.x - stackPos.x)
+            : topStack.depth - Math.abs(previousStack.position.z - stackPos.z)) <= 0 || isEnd
+    ) {
         isEnd = true;
         return {
             position: {
@@ -53,35 +53,35 @@ const returnStackOverHangData = (stacksLength, stackOverLap, topStack, stackPos)
                 stackOverLap.position.z
                 : (stackOverLap.position.z - (topStack.depth) / 2 * Math.sign(topStack.position.z - stackOverLap.position.z))
         },
-        width: stacksLength % 2 === 0 ? topStack.width - stackOverLap.width : topStack.width,
+        width: stacksLength % 2 === 0 || stacksLength === 1 ? topStack.width - stackOverLap.width : topStack.width,
         depth: stacksLength % 2 === 0 ? topStack.depth : topStack.depth - stackOverLap.depth,
     }
 }
 
+const baseStack = {
+    position: { x: 0, z: 0 },
+    width: 1,
+    depth: 1,
+}
 function Stacks({ stackCount, setIsEnd }) {
 
     // 스택 관련 코드
-    const topStack = useRef({ // 클릭했을 때 새로나오는 스택의 앞에 있는 스택
-        position: { x: 0, z: 0 },
-        width: 3,
-        depth: 3,
-    });
-    const previousStack = useRef({ // topStack보다 한 칸 앞에 있는 스택
-        position: { x: 0, z: 0 },
-        width: 3,
-        depth: 3,
-    });
-    const newStack = useRef({ // 클릭했을 때 새로 나오는 스택
-        position: { x: 0, z: 0 },
-        width: 3,
-        depth: 3,
-    });
+    const topStack = useRef( // 클릭했을 때 새로나오는 스택의 앞에 있는 스택
+        baseStack
+    );
+    const previousStack = useRef( // topStack보다 한 칸 앞에 있는 스택
+        baseStack
+    );
+    const newStack = useRef( // 클릭했을 때 새로 나오는 스택
+        baseStack
+    );
 
     const stackOverLaps = useRef([]); // 걸친 스택의 배열
     const stackOverHangs = useRef([]); // 걸치지 않은 스택의 배열
     const stackRef = useRef(); // 움직이는 스택
 
     if (stackCount !== 1) { // 처음 stackCount 값은 1임
+        console.log('t');
         stackOverLaps.current.push(
             returnStackOverLapData(
                 stackCount - 1,
@@ -105,24 +105,31 @@ function Stacks({ stackCount, setIsEnd }) {
             stackRef.current.position,
             topStack.current,
             previousStack.current,
-            -10,
-            -10
+            -10 + topStack.current.position.x,
+            -10 + topStack.current.position.z
         );
         previousStack.current = topStack.current;
         topStack.current = stackOverLaps.current.at(-1);
 
-        if(isEnd) setIsEnd(isEnd);
+        if (isEnd) setIsEnd(isEnd);
     }
 
     // 카메라 관련 코드
     const { camera, scene } = useThree();
 
-    const speed = useRef(0.15);
+    const speed = useRef(0.1);
 
     useFrame(() => {
         if (stackCount < 2 || isEnd) return; // 베이스가 되는 스택은 움직일 필요가 없음
         stackRef.current.position.x += stackCount % 2 === 1 ? 0 : speed.current;
         stackRef.current.position.z += stackCount % 2 === 1 ? speed.current : 0;
+        if (
+            stackRef.current.position.x - topStack.current.position.x >= topStack.current.width ||
+            stackRef.current.position.z - topStack.current.position.z >= topStack.current.depth
+        ) {
+            isEnd = true;
+            setIsEnd(isEnd);
+        }
         camera.position.y = stackCount + 3;
         scene.traverse((obj) => {
             if (obj instanceof THREE.SpotLight) {
