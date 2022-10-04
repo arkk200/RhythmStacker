@@ -60,10 +60,13 @@ const returnStackOverHangData = (stacksLength, stackOverLap, topStack, stackPos)
 
 const baseStack = {
     position: { x: 0, z: 0 },
-    width: 1,
-    depth: 1,
+    width: 3,
+    depth: 3,
 }
-function Stacks({ stackCount, setIsEnd }) {
+
+
+
+function Stacks({ stackCount, setIsEnd, setStackCount }) {
 
     // 스택 관련 코드
     const topStack = useRef( // 클릭했을 때 새로나오는 스택의 앞에 있는 스택
@@ -80,8 +83,7 @@ function Stacks({ stackCount, setIsEnd }) {
     const stackOverHangs = useRef([]); // 걸치지 않은 스택의 배열
     const stackRef = useRef(); // 움직이는 스택
 
-    if (stackCount !== 1) { // 처음 stackCount 값은 1임
-        console.log('t');
+    const AddStacks = () => {
         stackOverLaps.current.push(
             returnStackOverLapData(
                 stackCount - 1,
@@ -110,25 +112,29 @@ function Stacks({ stackCount, setIsEnd }) {
         );
         previousStack.current = topStack.current;
         topStack.current = stackOverLaps.current.at(-1);
-
-        if (isEnd) setIsEnd(isEnd);
+        setIsEnd(isEnd);
+    }
+    if (stackCount !== 1) { // 처음 stackCount 값은 1임
+        console.log('t');
+        AddStacks();
     }
 
     // 카메라 관련 코드
     const { camera, scene } = useThree();
 
-    const speed = useRef(0.1);
+    const speed = useRef(10);
 
-    useFrame(() => {
-        if (stackCount < 2 || isEnd) return; // 베이스가 되는 스택은 움직일 필요가 없음
-        stackRef.current.position.x += stackCount % 2 === 1 ? 0 : speed.current;
-        stackRef.current.position.z += stackCount % 2 === 1 ? speed.current : 0;
+    useFrame((state, delta, f) => {
+        // console.log(state, delta);
+        if (stackCount < 2 || isEnd) return; // Base stack cannot be move
+        stackRef.current.position.x += stackCount % 2 === 1 ? 0 : speed.current * delta;
+        stackRef.current.position.z += stackCount % 2 === 1 ? speed.current * delta : 0;
         if (
             stackRef.current.position.x - topStack.current.position.x >= topStack.current.width ||
             stackRef.current.position.z - topStack.current.position.z >= topStack.current.depth
         ) {
             isEnd = true;
-            setIsEnd(isEnd);
+            AddStacks();
         }
         camera.position.y = stackCount + 3;
         scene.traverse((obj) => {
