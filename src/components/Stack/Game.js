@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 import Stacks from './Stacks';
 import './Game.scss';
 function Game() {
-    const [stackCount, setStackCount] = useState(1);
+    const [stackCount, setStackCount] = useState(0);
     const [isEnd, setIsEnd] = useState(false);
     const handleClick = () => {
         setStackCount(current => current + 1);
@@ -14,7 +14,7 @@ function Game() {
     return (
         <div id="game">
             <div id="score">
-                {stackCount-1}
+                {Math.max(stackCount - 1 - isEnd, 0)}
             </div>
             <Canvas
                 style={{ height: '100vh' }}

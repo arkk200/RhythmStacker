@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Stack from "./Stack/Stack";
 import * as THREE from 'three';
 // import { Physics, useBox } from "@react-three/cannon";
@@ -86,7 +86,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
     const AddStacks = () => {
         stackOverLaps.current.push(
             returnStackOverLapData(
-                stackCount - 1,
+                stackCount,
                 stackRef.current.position,
                 topStack.current,
                 previousStack.current,
@@ -96,14 +96,14 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
         )
         stackOverHangs.current.push(
             returnStackOverHangData(
-                stackCount - 1,
+                stackCount,
                 stackOverLaps.current.at(-1),
                 topStack.current,
                 stackRef.current.position
             )
         )
         newStack.current = returnStackOverLapData(
-            stackCount - 1,
+            stackCount,
             stackRef.current.position,
             topStack.current,
             previousStack.current,
@@ -114,7 +114,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
         topStack.current = stackOverLaps.current.at(-1);
         setIsEnd(isEnd);
     }
-    if (stackCount !== 1) { // 처음 stackCount 값은 1임
+    if (stackCount !== 0) { // 처음 stackCount 값은 1임
         console.log('t');
         AddStacks();
     }
@@ -126,20 +126,21 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
 
     useFrame((state, delta, f) => {
         // console.log(state, delta);
-        if (stackCount < 2 || isEnd) return; // Base stack cannot be move
-        stackRef.current.position.x += stackCount % 2 === 1 ? 0 : speed.current * delta;
-        stackRef.current.position.z += stackCount % 2 === 1 ? speed.current * delta : 0;
+        if (stackCount < 1 || isEnd) return; // Base stack cannot be move
+        stackRef.current.position.x += stackCount % 2 === 0 ? 0 : speed.current * delta;
+        stackRef.current.position.z += stackCount % 2 === 0 ? speed.current * delta : 0;
         if (
             stackRef.current.position.x - topStack.current.position.x >= topStack.current.width ||
             stackRef.current.position.z - topStack.current.position.z >= topStack.current.depth
         ) {
             isEnd = true;
+            setStackCount(current => current + 1);
             AddStacks();
         }
-        camera.position.y = stackCount + 3;
+        camera.position.y = stackCount + 4;
         scene.traverse((obj) => {
             if (obj instanceof THREE.SpotLight) {
-                obj.position.y = stackCount + 3;
+                obj.position.y = stackCount + 4;
                 obj.target = stackRef.current;
             }
         });
@@ -149,7 +150,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
         <>
             {   // 움직이는 Stack
                 <Stack
-                    position={[newStack.current.position.x, stackCount, newStack.current.position.z]} ref={stackRef}
+                    position={[newStack.current.position.x, stackCount + 1, newStack.current.position.z]} ref={stackRef}
                     args={[newStack.current.width, 1, newStack.current.depth]}
                     color="orange"
                 />
@@ -159,7 +160,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
                     <StackPhysics
                         position={[stack.position.x, index + 1, stack.position.z]} key={index} mass={0}
                         args={[stack.width, 1, stack.depth]}
-                        color="blue"
+                        color="orange"
                     />
                 ))
             }
@@ -168,7 +169,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
                     <StackPhysics
                         position={[stack.position.x, index + 1, stack.position.z]} key={index} mass={1}
                         args={[stack.width, 1, stack.depth]}
-                        color="green"
+                        color="orange"
                     />
                 ))
             }
