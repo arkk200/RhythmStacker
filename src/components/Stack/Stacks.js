@@ -160,7 +160,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
                     <StackPhysics
                         position={[stack.position.x, index + 1, stack.position.z]} key={index} mass={0}
                         args={[stack.width, 1, stack.depth]}
-                        color="blue"
+                        color="orange"
                     />
                 ))
             }
@@ -169,7 +169,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
                     <StackPhysics
                         position={[stack.position.x, index + 1, stack.position.z]} key={index} mass={1}
                         args={[stack.width, 1, stack.depth]}
-                        color="green"
+                        color="orange"
                     />
                 ))
             }
