@@ -1,17 +1,16 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Stack from "./Stack/Stack";
 import * as THREE from 'three';
-// import { Physics, useBox } from "@react-three/cannon";
 import StackPhysics from "./StackPhysics/StackPhysics";
 
-let isEnd = false;
+const isLand = num => (num <= 0)
 
-const returnStackOverLapData = (stacksLength, stackPos, topStack, previousStack, spawnDistX, spawnDistZ) => {
+const summonStack = (stackCount, stackRefPos, topStack, previousStack, spawnDistX, spawnDistZ) => {
     if (
-        (stacksLength % 2 === 0 ?
-            topStack.width - Math.abs(previousStack.position.x - stackPos.x)
-            : topStack.depth - Math.abs(previousStack.position.z - stackPos.z)) <= 0 || isEnd
+        (stackCount % 2 === 0 ?
+            isLand(topStack.width - (previousStack.position.x - stackRefPos.x))
+            : isLand(topStack.depth - (previousStack.position.z - stackRefPos.z))) || isEnd
     ) {
         isEnd = true;
         return {
@@ -25,20 +24,19 @@ const returnStackOverLapData = (stacksLength, stackPos, topStack, previousStack,
     }
     return {
         position: {
-            x: stacksLength % 2 === 0 ? stackPos.x - (stackPos.x - previousStack.position.x) / 2 : spawnDistX,
-            z: stacksLength % 2 === 0 ? spawnDistZ : stackPos.z - (stackPos.z - previousStack.position.z) / 2,
+            x: stackCount % 2 === 0 ? stackRefPos.x - (stackRefPos.x - previousStack.position.x) / 2 : spawnDistX,
+            z: stackCount % 2 === 0 ? spawnDistZ : stackRefPos.z - (stackRefPos.z - previousStack.position.z) / 2,
         },
-        width: stacksLength % 2 === 0 ? topStack.width - Math.abs(previousStack.position.x - stackPos.x) : topStack.width,
-        depth: stacksLength % 2 === 0 ? topStack.depth : topStack.depth - Math.abs(previousStack.position.z - stackPos.z),
+        width: stackCount % 2 === 0 ? topStack.width - Math.abs(previousStack.position.x - stackRefPos.x) : topStack.width,
+        depth: stackCount % 2 === 0 ? topStack.depth : topStack.depth - Math.abs(previousStack.position.z - stackRefPos.z),
     }
 }
-
-const returnStackOverHangData = (stacksLength, stackOverLap, topStack, stackPos) => {
+const returnStackOverHangData = (stackCount, stackOverLap, topStack, stackRefPos) => {
     if (isEnd) {
         return {
             position: {
-                x: stackPos.x,
-                z: stackPos.z,
+                x: stackRefPos.x,
+                z: stackRefPos.z,
             },
             width: topStack.width,
             depth: topStack.depth,
@@ -46,17 +44,19 @@ const returnStackOverHangData = (stacksLength, stackOverLap, topStack, stackPos)
     }
     return {
         position: {
-            x: stacksLength % 2 === 0 ?
+            x: stackCount % 2 === 0 ?
                 (stackOverLap.position.x - (topStack.width) / 2 * Math.sign(topStack.position.x - stackOverLap.position.x))
                 : stackOverLap.position.x,
-            z: stacksLength % 2 === 0 ?
+            z: stackCount % 2 === 0 ?
                 stackOverLap.position.z
                 : (stackOverLap.position.z - (topStack.depth) / 2 * Math.sign(topStack.position.z - stackOverLap.position.z))
         },
-        width: stacksLength % 2 === 0 || stacksLength === 1 ? topStack.width - stackOverLap.width : topStack.width,
-        depth: stacksLength % 2 === 0 ? topStack.depth : topStack.depth - stackOverLap.depth,
+        width: stackCount % 2 === 0 || stackCount === 1 ? topStack.width - stackOverLap.width : topStack.width,
+        depth: stackCount % 2 === 0 ? topStack.depth : topStack.depth - stackOverLap.depth,
     }
 }
+
+
 
 const baseStack = {
     position: { x: 0, z: 0 },
@@ -64,9 +64,21 @@ const baseStack = {
     depth: 3,
 }
 
+let isEnd = false;
 
+function Stacks() {
+    const [stackCount, setStackCount] = useState(0);
 
-function Stacks({ stackCount, setIsEnd, setStackCount }) {
+    useEffect(() => {
+        window.addEventListener('keydown', e => {
+            if(e.code === 'Space')
+                setStackCount(current => current + 1)
+        })
+        return window.removeEventListener('keydown', e => {
+            if(e.code === 'Space')
+                setStackCount(current => current + 1)
+        })
+    }, []);
 
     // 스택 관련 코드
     const topStack = useRef( // 클릭했을 때 새로나오는 스택의 앞에 있는 스택
@@ -79,13 +91,13 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
         baseStack
     );
 
-    const stackOverLaps = useRef([]); // 걸친 스택의 배열
-    const stackOverHangs = useRef([]); // 걸치지 않은 스택의 배열
-    const stackRef = useRef(); // 움직이는 스택
+    const stackOverLaps = useRef([]);
+    const stackOverHangs = useRef([]);
+    const stackRef = useRef();
 
     const AddStacks = () => {
         stackOverLaps.current.push(
-            returnStackOverLapData(
+            summonStack(
                 stackCount,
                 stackRef.current.position,
                 topStack.current,
@@ -102,7 +114,7 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
                 stackRef.current.position
             )
         )
-        newStack.current = returnStackOverLapData(
+        newStack.current = summonStack(
             stackCount,
             stackRef.current.position,
             topStack.current,
@@ -110,12 +122,12 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
             -10 + topStack.current.position.x,
             -10 + topStack.current.position.z
         );
+        console.log(newStack);
         previousStack.current = topStack.current;
         topStack.current = stackOverLaps.current.at(-1);
-        setIsEnd(isEnd);
     }
-    if (stackCount !== 0) { // 처음 stackCount 값은 1임
-        console.log('t');
+
+    if (stackCount !== 0 && !isEnd) { // 처음 stackCount 값은 1임
         AddStacks();
     }
 
@@ -124,26 +136,27 @@ function Stacks({ stackCount, setIsEnd, setStackCount }) {
 
     const speed = useRef(10);
 
-    useFrame((state, delta, f) => {
-        // console.log(state, delta);
-        if (stackCount < 1 || isEnd) return; // Base stack cannot be move
+    useFrame((_, delta) => {
+        if (stackCount < 1 || isEnd) return;
         stackRef.current.position.x += stackCount % 2 === 0 ? 0 : speed.current * delta;
         stackRef.current.position.z += stackCount % 2 === 0 ? speed.current * delta : 0;
-        if (
-            stackRef.current.position.x - topStack.current.position.x >= topStack.current.width ||
-            stackRef.current.position.z - topStack.current.position.z >= topStack.current.depth
+
+        if ( // 종료구문
+            isLand(topStack.current.width - (stackRef.current.position.x - topStack.current.position.x)) ||
+            isLand(topStack.current.depth - (stackRef.current.position.z - topStack.current.position.z))
         ) {
             isEnd = true;
-            setStackCount(current => current + 1);
             AddStacks();
+            setStackCount(c => c + 1);
         }
-        camera.position.y = stackCount + 4;
-        scene.traverse((obj) => {
+
+        camera.position.y = stackCount + 4; // 카메라 위치
+        scene.traverse((obj) => { // 스포트라이트 위치
             if (obj instanceof THREE.SpotLight) {
                 obj.position.y = stackCount + 4;
                 obj.target = stackRef.current;
             }
-        });
+        })
     });
 
     return (
