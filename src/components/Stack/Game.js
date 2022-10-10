@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 
 import Stacks from './Stacks';
 import './Game.scss';
+import { OrbitControls } from '@react-three/drei';
 function Game() {
     
     return (
@@ -18,6 +19,7 @@ function Game() {
                     position: [4, 4, 4]
                 }}
             >
+                <OrbitControls />
                 <Physics>
                     <color attach="background" args={['#050505']} />
                     <ambientLight intensity={0.3} />

@@ -8,9 +8,9 @@ const isLand = num => (num <= 0)
 
 const summonStack = (stackCount, stackRefPos, topStack, previousStack, spawnDistX, spawnDistZ) => {
     if (
-        (stackCount % 2 === 0 ?
+        isEnd || (stackCount % 2 === 0 ?
             isLand(topStack.width - (previousStack.position.x - stackRefPos.x))
-            : isLand(topStack.depth - (previousStack.position.z - stackRefPos.z))) || isEnd
+            : isLand(topStack.depth - (previousStack.position.z - stackRefPos.z)))
     ) {
         isEnd = true;
         return {
@@ -31,7 +31,7 @@ const summonStack = (stackCount, stackRefPos, topStack, previousStack, spawnDist
         depth: stackCount % 2 === 0 ? topStack.depth : topStack.depth - Math.abs(previousStack.position.z - stackRefPos.z),
     }
 }
-const returnStackOverHangData = (stackCount, stackOverLap, topStack, stackRefPos) => {
+const summonStackOverHang = (stackCount, stackOverLap, topStack, stackRefPos) => {
     if (isEnd) {
         return {
             position: {
@@ -70,15 +70,15 @@ function Stacks() {
     const [stackCount, setStackCount] = useState(0);
 
     useEffect(() => {
-        window.addEventListener('keydown', e => {
+        const handleStackCount = e => {
             if(e.code === 'Space')
                 setStackCount(current => current + 1)
-        })
-        return window.removeEventListener('keydown', e => {
-            if(e.code === 'Space')
-                setStackCount(current => current + 1)
-        })
-    }, []);
+        }
+
+        if(!isEnd) { window.addEventListener('keydown', handleStackCount) }
+
+        return () => { window.removeEventListener('keydown', handleStackCount) }
+    }, [stackCount]);
 
     // 스택 관련 코드
     const topStack = useRef( // 클릭했을 때 새로나오는 스택의 앞에 있는 스택
@@ -107,7 +107,7 @@ function Stacks() {
             )
         )
         stackOverHangs.current.push(
-            returnStackOverHangData(
+            summonStackOverHang(
                 stackCount,
                 stackOverLaps.current.at(-1),
                 topStack.current,
@@ -122,12 +122,11 @@ function Stacks() {
             -10 + topStack.current.position.x,
             -10 + topStack.current.position.z
         );
-        console.log(newStack);
         previousStack.current = topStack.current;
         topStack.current = stackOverLaps.current.at(-1);
     }
 
-    if (stackCount !== 0 && !isEnd) { // 처음 stackCount 값은 1임
+    if (stackCount !== 0) { // 처음 stackCount 값은 1임
         AddStacks();
     }
 
@@ -138,7 +137,7 @@ function Stacks() {
 
     useFrame((_, delta) => {
         if (stackCount < 1 || isEnd) return;
-        stackRef.current.position.x += stackCount % 2 === 0 ? 0 : speed.current * delta;
+        stackRef.current.position.x += stackCount % 2 === 0 ? 0 : speed.current * delta; // 스택 애니메이션 구문
         stackRef.current.position.z += stackCount % 2 === 0 ? speed.current * delta : 0;
 
         if ( // 종료구문
@@ -146,7 +145,6 @@ function Stacks() {
             isLand(topStack.current.depth - (stackRef.current.position.z - topStack.current.position.z))
         ) {
             isEnd = true;
-            AddStacks();
             setStackCount(c => c + 1);
         }
 
