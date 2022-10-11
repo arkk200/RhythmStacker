@@ -1,6 +1,6 @@
 import { Physics } from '@react-three/cannon';
 import { Canvas } from '@react-three/fiber';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { OrbitControls } from '@react-three/drei';
 
 import Stacks from './Stacks';
@@ -23,7 +23,7 @@ function Game() {
                     position: [4, 4, 4]
                 }}
             >
-                <OrbitControls />
+                {/* <OrbitControls /> */}
                 <Physics>
                     <color attach="background" args={['#050505']} />
                     <ambientLight intensity={0.3} />

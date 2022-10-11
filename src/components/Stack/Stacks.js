@@ -4,9 +4,11 @@ import * as THREE from 'three';
 
 import Stack from "./Stack/Stack";
 import StackPhysics from "./StackPhysics/StackPhysics";
+import songInfo from '../../songInfo.json';
 
 const isLand = num => (num <= 0)
 
+// 걸친 스택, 새로운 스택 생성 함수
 const summonStack = (stackCount, stackRefPos, topStack, previousStack, spawnDistX, spawnDistZ, isEnd) => {
     if(isEnd) {
         console.log('summonStack IsEnd Test', );
@@ -17,6 +19,7 @@ const summonStack = (stackCount, stackRefPos, topStack, previousStack, spawnDist
         }
     }
     return {
+        // stackCount가 홀수 == x축으로 이동하는 스택 생성, 짝수면 z축
         position: {
             x: stackCount % 2 === 0 ? stackRefPos.x - (stackRefPos.x - previousStack.position.x) / 2 : spawnDistX,
             z: stackCount % 2 === 0 ? spawnDistZ : stackRefPos.z - (stackRefPos.z - previousStack.position.z) / 2,
@@ -25,6 +28,7 @@ const summonStack = (stackCount, stackRefPos, topStack, previousStack, spawnDist
         depth: stackCount % 2 === 0 ? topStack.depth : topStack.depth - Math.abs(previousStack.position.z - stackRefPos.z),
     }
 }
+// 걸치지 못한 스택 생성
 const summonStackOverHang = (stackCount, stackOverLap, topStack, stackRefPos, isEnd) => {
     if (isEnd) {
         return {
@@ -77,7 +81,7 @@ function Stacks({ stackCount, setStackCount, isEnd, setIsEnd }) {
 
     useEffect(() => {
         const handleStackCount = e => {
-            if(e.code === 'Space') {
+            if(e.code === 'Space' || e.type === "mousedown") {
                 console.log('stackCount: ', stackCount);
                 console.log('diff: ', stackCount % 2 === 1 ?
                 `prevStackX: ${previousStack.current.position.x}, stackRefX: ${stackRef.current.position.x}, topStackWid: ${topStack.current.width}, Op: ${previousStack.current.position.x - stackRef.current.position.x - topStack.current.width}`
@@ -96,13 +100,18 @@ function Stacks({ stackCount, setStackCount, isEnd, setIsEnd }) {
             }
         }
 
-        if(!isEnd) { window.addEventListener('keydown', handleStackCount) }
+        if(!isEnd) {
+            window.addEventListener('keydown', handleStackCount)
+            window.addEventListener('mousedown', handleStackCount)
+        }
 
-        return () => { window.removeEventListener('keydown', handleStackCount) }
-    }, [isEnd, stackCount]);
+        return () => {
+            window.removeEventListener('keydown', handleStackCount)
+            window.removeEventListener('mousedown', handleStackCount)
+        }
+    }, [setIsEnd, isEnd, setStackCount, stackCount]);
 
     const AddStack = () => {
-        // stackCount가 홀수 == x축으로 이동하는 스택 생성, 짝수면 z축
         stackOverLaps.current.push(
             summonStack(
                 stackCount,
@@ -114,6 +123,7 @@ function Stacks({ stackCount, setStackCount, isEnd, setIsEnd }) {
                 isEnd
             )
         )
+        // 걸치지 못한 스택 생성
         stackOverHangs.current.push(
             summonStackOverHang(
                 stackCount,
@@ -128,8 +138,8 @@ function Stacks({ stackCount, setStackCount, isEnd, setIsEnd }) {
             stackRef.current.position,
             topStack.current,
             previousStack.current,
-            -10 + topStack.current.position.x,
-            -10 + topStack.current.position.z,
+            -40 + topStack.current.position.x,
+            -40 + topStack.current.position.z,
             isEnd
         );
         previousStack.current = topStack.current;
@@ -146,7 +156,7 @@ function Stacks({ stackCount, setStackCount, isEnd, setIsEnd }) {
     // 카메라 관련 코드
     const { camera, scene } = useThree();
 
-    const speed = useRef(10);
+    const speed = useRef(40);
 
     useFrame((_, delta) => {
         if (stackCount < 1 || isEnd) return;
@@ -173,11 +183,13 @@ function Stacks({ stackCount, setStackCount, isEnd, setIsEnd }) {
     return (
         <>
             { // 움직이는 Stack
-                <Stack
-                    position={[newStack.current.position.x, stackCount + 1, newStack.current.position.z]} ref={stackRef}
-                    args={[newStack.current.width, 1, newStack.current.depth]}
-                    color="orange"
-                />
+                songInfo.noteInfos.map(noteInfo => (
+                    <Stack
+                        position={[newStack.current.position.x, stackCount + 1, newStack.current.position.z]} ref={stackRef}
+                        args={[newStack.current.width, 1, newStack.current.depth]}
+                        color="orange"
+                    />
+                ))
             }
             {   // 걸친 Stack
                 stackOverLaps.current.map((stack, index) => (
