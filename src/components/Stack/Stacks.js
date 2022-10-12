@@ -183,13 +183,11 @@ function Stacks({ stackCount, setStackCount, isEnd, setIsEnd }) {
     return (
         <>
             { // 움직이는 Stack
-                songInfo.noteInfos.map(noteInfo => (
-                    <Stack
-                        position={[newStack.current.position.x, stackCount + 1, newStack.current.position.z]} ref={stackRef}
-                        args={[newStack.current.width, 1, newStack.current.depth]}
-                        color="orange"
-                    />
-                ))
+                <Stack
+                    position={[newStack.current.position.x, stackCount + 1, newStack.current.position.z]} ref={stackRef}
+                    args={[newStack.current.width, 1, newStack.current.depth]}
+                    color="orange"
+                />
             }
             {   // 걸친 Stack
                 stackOverLaps.current.map((stack, index) => (
