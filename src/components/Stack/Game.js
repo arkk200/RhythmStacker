@@ -19,7 +19,7 @@ function Game() {
                 style={{ height: '100vh' }}
                 orthographic
                 camera={{
-                    zoom: 50,
+                    zoom: 10,
                     position: [4, 4, 4]
                 }}
             >
