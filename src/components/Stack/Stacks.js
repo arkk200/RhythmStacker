@@ -1,117 +1,167 @@
-import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
-import Stack from "./Stack/Stack";
+import { useFrame } from '@react-three/fiber';
+import { useEffect, useRef, useState } from 'react';
 
-const stkdArr = [];
+import Stack from './Stack/Stack';
 
 let time = 0;
-const bpm = 120;
+let bpm = 120;
 
-let prevDir = null;
+let isEnd = false;
+let preDir = 'z';
 const speed = 10;
 
 function Stacks() {
-    const [stkArr, setStkArr] = useState([
+    const [stkdArr, setStkdArr] = useState([
         {
-            pos: {
-                x: 0,
-                z: 0
-            },
+            pos: { x: 0, z: 0 },
             wid: 3,
             dep: 3,
-            dir: null
+            dir: 'x'
         }
     ]);
+    const [stksArr, setStksArr] = useState([]);
+
     const stksRef = useRef([]);
-    const [rendState, setRendState] = useState(false);
+
 
     useEffect(() => {
-        window.addEventListener('click', () => {
-            // stkArr.map((stk, i) => {
-            //     // console.log (stksRef.current, i);
-            //     return {
-            //         pos: stksRef.current[i].position,
-            //         wid: stk.wid,
-            //         dep: stk.dep,
-            //         dir: stk.dir
-            //     }
-            // });
-            setStkArr(
-                cur => {
-                    return cur.map((stk, i) => {
-                        // console.log (stksRef.current, i);
-                        return {
-                            pos: stksRef.current[i].position,
-                            wid: stk.wid,
-                            dep: stk.dep,
-                            dir: stk.dir
-                        }
-                    })
-                }
-            )
-            // stkArr.shift();
-            // stkdArr.push(stksRef.current);
-            console.log(123123123);
-            // stksRef.current.shift();
-            // setStkArr(stkArr.slice(1));
-            // console.log(stkArr);
-            // console.log
-            // setRendState(c => !c);
-        })
-    })
+        const rmStkFrmStksArr = () => {
+            console.log('배열 크기',stksArr.slice(1), stksRef.current);
+            // stksRef.current = stksRef.current.slice(1);
+            stksRef.current.shift()
+            setStksArr(stksArr.slice(1));
+        }
+        if(!isEnd)
+            window.addEventListener('click', rmStkFrmStksArr);
+        return () => window.removeEventListener('click', rmStkFrmStksArr);
+    }, [stksArr]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // 애니메이션 파트
 
     useFrame((_, dt) => {
-        stksRef.current.forEach((stkRef, i) => {
-            // console.log(i);
-            stkRef.position.x += stkArr[i].dir === 'x' ? speed * dt : 0;
-            stkRef.position.z += stkArr[i].dir === 'z' ? speed * dt : 0;
+        stksArr.forEach((stk, i) => {
+            try {
+                const curStkRef = stksRef.current[i];
+                const curStkDir = stk.dir;
+                curStkRef.position.x += curStkDir === 'x' ? dt * speed : 0;
+                curStkRef.position.z += curStkDir === 'z' ? dt * speed : 0;
+            } catch {
+                console.log('null 감지', i, JSON.parse(JSON.stringify(stksArr)), JSON.parse(JSON.stringify(stksRef.current)));
+            }
         })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         time += dt;
         if(time >= 60/bpm) {
             time -= 60/bpm;
-            prevDir = stkArr.at(-1).dir;
-            // stkArr.push({
-            //     ...stkArr.at(-1),
-            //     pos : {
-            //         x: prevDir === 'z' ? -10 : 0,
-            //         z: prevDir === 'z' ? 0 : -10
-            //     }, 
-            //     dir: prevDir === 'z' ? 'x' : 'z'
-            // });
-            setStkArr([
-                ...stkArr,
+            preDir = preDir === 'x' ? 'z' : 'x';
+            setStksArr([
+                ...stksArr,
                 {
-                    ...stkArr.at(-1),
-                    pos : {
-                        x: prevDir === 'z' ? -10 : 0,
-                        z: prevDir === 'z' ? 0 : -10
-                    }, 
-                    dir: prevDir === 'z' ? 'x' : 'z'
+                    pos: { 
+                        x: preDir === 'x' ? 0 : -10, 
+                        z: preDir === 'z' ? 0 : -10
+                    },
+                    wid: 3,
+                    dep: 3,
+                    dir: preDir === 'x' ? 'z' : 'x'
                 }
             ])
-            console.log(stkArr.length, prevDir);
-            setRendState(c => !c);
+            // preDir = stksArr.at(-1)?.dir;
+            // console.log(stksArr);
         }
-    });
+
+
+
+
+
+
+
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     return (
         <>
-        {stkArr.map((stk, i) => (
-            <Stack 
-                key={i} 
-                position={[stk.pos.x, i, stk.pos.z]} 
-                args={[stk.wid, 1, stk.dep]}
-                ref={el => (stksRef.current[i] = el)} 
-            />
-        ))}
-        {stkdArr.map((stkd, i) => (
-            <Stack 
-                key={i} 
-                position={[stkd.pos.x, i, stkd.pos.z]} 
-                args={[stkd.wid, 1, stkd.dep]}
-            />
-        ))}
+            {stksArr.map(((stk, i) => (
+                <Stack 
+                    key={i}
+                    position={[stk.pos.x, i, stk.pos.z]}
+                    geo={{
+                        args: [stk.wid, 1, stk.dep]
+                    }}
+                    mat={{
+                        color: "red",
+                        transparent: true,
+                        opacity: 0.5
+                    }}
+                    ref={el => (stksRef.current[i] = el)}
+                />
+            )))
+                
+            }
+            {stkdArr.map((stkd, i) => (
+                    <Stack
+                        key={i}
+                        position={[stkd.pos.x, i, stkd.pos.z]}
+                        geo={{
+                            args: [stkd.wid, 1, stkd.dep]
+                        }}
+                        mat={{
+                            color: "white",
+                            transparent: true,
+                            opacity: 0.5
+                        }}
+                    />
+            ))}
         </>
-    );
+    )
 }
 
 export default Stacks;
