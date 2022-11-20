@@ -9,13 +9,13 @@ const camera = new THREE.OrthographicCamera(
     window.innerWidth / 32,
     window.innerHeight / 32,
     window.innerHeight / -32,
-    0,
+    -45,
     1000,
 );
 camera.position.set(10, 10, 10);
 camera.lookAt(0, 0, 0);
-const helper = new THREE.CameraHelper( camera );
-scene.add(helper);
+// const helper = new THREE.CameraHelper( camera );
+// scene.add(helper);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -23,8 +23,9 @@ document.body.appendChild(renderer.domElement);
 
 // const controls = new OrbitControls(camera, renderer.domElement);
 
-const spotLight = new THREE.SpotLight(0xffffff, 0.6);
-spotLight.position.set(20, 5, 10);
+const spotLight = new THREE.SpotLight(0xffffff, 0.6, 0, 170);
+spotLight.position.set(120, 50, 100);
+spotLight.lookAt(0, 0, 0);
 scene.add(spotLight);
 
 
@@ -49,30 +50,42 @@ let notes = musicJson.notes;
 let curPos = { x: 0, z: 0 };
 let curSiz = { wid: 10, dep: 10};
 
-const setFirstStksParam = (firstStk) => {
+const setFirstStkParams = (firstStk) => {
     firstStk.name = "stacked";
     curSiz.wid -= Math.abs(firstStk.position.x - curPos.x);
+    console.log(firstStk.position.x, curPos.x, curSiz.wid);
     firstStk.scale.set(curSiz.wid / 10, 1, 1);
-    curPos.x = (firstStk.position.x - curPos.x) / 2;
+    curPos.x = firstStk.position.x - (firstStk.position.x - curPos.x) / 2;
     firstStk.position.x = curPos.x;
 }
+const setStksParams = (stk) => {
+    stk.scale.set(curSiz.wid / 10, 1, 1);
+    stk.translateX(curPos.x);
+}
 
-const onClick = () => {
+const onClick = (e) => {
+    if (e.code !== 'KeyK') return;
     if (!isStart) { 
         isStart = true;
         const audio = new Audio('./musics/Kevin-MacLeod_Silly-Fun_End-C.mp3');
-        audio.play();
+        setTimeout(() => {
+            audio.play();
+        }, 650);
         return;
     }
     let foundFirstStk = false;
-    scene.traverse(firstStk => {
-        if(firstStk.name !== 'stack' || foundFirstStk) return;
-        foundFirstStk = true;
-        setFirstStksParam(firstStk);
+    scene.traverse(stk => {
+        if (stk.name !== 'stack') return;
+        if (!foundFirstStk) {
+            setFirstStkParams(stk);
+            foundFirstStk = true;
+            return;
+        }
+        setStksParams(stk);
     });
 }
 
-window.addEventListener('mousedown', onClick);
+window.addEventListener('keydown', onClick);
 
 
 
@@ -91,7 +104,7 @@ const addStk = (height) => {
         new THREE.MeshPhongMaterial({ color: 'white' })
     );
     stk.name = "stack";
-    stk.position.set(-20, height, 0);
+    stk.position.set(-10 + curPos.x, height, 0);
     scene.add(stk);
 }
 
@@ -113,7 +126,7 @@ function animate() {
     if(!isStart) return;
     scene.traverse(obj => {
         if(obj.name !== 'stack') return;
-        obj.translateX(0.5);
+        obj.translateX(0.25);
     })
     time += clock.getDelta();
     if(time >= 60 / curBPM) {
