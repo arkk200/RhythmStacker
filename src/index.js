@@ -1,7 +1,6 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 // import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls';
-
-import musicJson from './musics/Kevin-MacLeod_Silly-Fun_End-C.json' assert {type: 'json'} ;
+import musicJson from './musics/Kevin-MacLeod_Silly-Fun_End-C.json' assert { type: 'json' };
 
 const scene = new THREE.Scene();
 const camera = new THREE.OrthographicCamera(
@@ -28,7 +27,6 @@ spotLight.position.set(120, 50, 100);
 spotLight.lookAt(0, 0, 0);
 scene.add(spotLight);
 
-
 function onResize() {
     camera.left = window.innerWidth / -32;
     camera.right = window.innerWidth / 32;
@@ -45,26 +43,43 @@ window.addEventListener('resize', onResize);
 
 
 let isStart = false;
+let isEnd = false;
 let notes = musicJson.notes;
 
 let curPos = { x: 0, z: 0 };
 let curSiz = { wid: 10, dep: 10};
 
 const setFirstStkParams = (firstStk) => {
-    firstStk.name = "stacked";
     curSiz.wid -= Math.abs(firstStk.position.x - curPos.x);
-    console.log(firstStk.position.x, curPos.x, curSiz.wid);
-    firstStk.scale.set(curSiz.wid / 10, 1, 1);
+    if(curSiz.wid <= 0) {
+        isEnd = true;
+        return;
+    }
     curPos.x = firstStk.position.x - (firstStk.position.x - curPos.x) / 2;
-    firstStk.position.x = curPos.x;
+    const stacked = new THREE.Mesh(
+        new THREE.BoxGeometry(curSiz.wid, 3, 10),
+        new THREE.MeshPhongMaterial({ color: 'white' })
+    );
+    stacked.position.set(curPos.x, firstStk.position.y, 0);
+    scene.add(stacked);
+    scene.remove(firstStk);
 }
 const setStksParams = (stk) => {
-    stk.scale.set(curSiz.wid / 10, 1, 1);
-    stk.translateX(curPos.x);
+    const newStk = new THREE.Mesh(
+        new THREE.BoxGeometry(curSiz.wid, 3, 10),
+        new THREE.MeshPhongMaterial({ color: 'yellow' })
+    );
+    newStk.position.set(curPos.x + stk.position.x, stk.position.y, stk.position.z);
+    newStk.name = stk.name;
+    scene.remove(stk);
+    // console.log('newStk name:', newStk.name);
+    scene.add(newStk);
 }
 
+let stkdCnt = 0;
+
 const onClick = (e) => {
-    if (e.code !== 'KeyK') return;
+    if (e.code !== 'KeyK' || isEnd) return;
     if (!isStart) { 
         isStart = true;
         const audio = new Audio('./musics/Kevin-MacLeod_Silly-Fun_End-C.mp3');
@@ -73,22 +88,32 @@ const onClick = (e) => {
         }, 650);
         return;
     }
-    let foundFirstStk = false;
     scene.traverse(stk => {
-        if (stk.name !== 'stack') return;
-        if (!foundFirstStk) {
+        if (!stk.name.includes('stack')) return;
+        console.log('stk name:', stk.name);
+        if (stk.name === `stack-${stkdCnt}`) {
             setFirstStkParams(stk);
-            foundFirstStk = true;
             return;
         }
         setStksParams(stk);
+        console.log(stk.name);
     });
+    stkdCnt++;
 }
 
 window.addEventListener('keydown', onClick);
 
 
 
+
+
+const pivotPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(3, 50),
+    new THREE.MeshPhongMaterial({ color: 'red' })
+);
+pivotPlane.rotateY(Math.PI / 180 * 90);
+pivotPlane.position.set(-20, 0, 3);
+scene.add(pivotPlane);
 
 
 
@@ -98,15 +123,8 @@ const stk = new THREE.Mesh(
 );
 scene.add(stk);
 
-const addStk = (height) => {
-    const stk = new THREE.Mesh(
-        new THREE.BoxGeometry(curSiz.wid, 3, curSiz.dep),
-        new THREE.MeshPhongMaterial({ color: 'white' })
-    );
-    stk.name = "stack";
-    stk.position.set(-10 + curPos.x, height, 0);
-    scene.add(stk);
-}
+
+
 
 
 
@@ -117,22 +135,36 @@ const addStk = (height) => {
 
 let time = 0;
 let noteIndex = 0;
+const speed = 20;
 let curBPM = notes[0];
 const clock = new THREE.Clock();
+
+const addStk = (height) => {
+    const stk = new THREE.Mesh(
+        new THREE.BoxGeometry(curSiz.wid, 3, curSiz.dep),
+        new THREE.MeshPhongMaterial({ color: 'white' })
+    );
+    stk.name = `stack-${noteIndex}`;
+    stk.position.set(-20 + curPos.x, height, 0);
+    scene.add(stk);
+}
 
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
-    if(!isStart) return;
+    if(!isStart || isEnd) return;
+    const delta = clock.getDelta();
     scene.traverse(obj => {
-        if(obj.name !== 'stack') return;
-        obj.translateX(0.25);
-    })
-    time += clock.getDelta();
+        if(!obj.name.includes('stack')) return;
+        obj.translateX(delta * speed);
+        if (obj.position.x - curPos.x >= curSiz.wid) isEnd = true;
+    });
+    time += delta;
     if(time >= 60 / curBPM) {
         time -= 60 / curBPM;
-        curBPM = notes[++noteIndex];
-        addStk(noteIndex * 3);
+        curBPM = notes[noteIndex];
+        addStk((noteIndex + 1) * 3);
+        noteIndex++;
     }
 }
 animate();

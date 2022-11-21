@@ -16,8 +16,8 @@
   },
   "homepage": "https://github.com/arkk200/RhythmStacker#readme",
   "dependencies": {
+    "lodash": "^4.17.21",
     "three": "^0.146.0"
   },
-  "devDependencies": {},
   "description": ""
 }
