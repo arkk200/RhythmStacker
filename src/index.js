@@ -16,6 +16,7 @@ class App {
             1000
         );
         this.camera.position.set(32, 32, 32);
+        this.cameraHeight = 32;
         this.camera.lookAt(0, 0, 0);
 
         this.stackSize = 3;
@@ -26,7 +27,7 @@ class App {
         this.light.position.set(40, 30, 30);
         this.light.target = this.obj;
         this.scene.add(this.light);
-        this.baseStack = new StackMesh(this.stackSize, 25, this.stackSize, {color: 'red', opacity : 0.5, transparent: true})
+        this.baseStack = new StackMesh(this.stackSize, 40, this.stackSize, {color: 'red', opacity : 0.5, transparent: true})
         this.scene.add(this.baseStack);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -69,6 +70,8 @@ class App {
         window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
         this.delta = this.clock.getDelta();
+        this.cameraHeight - this.camera.position.y > 0.01 
+        && this.camera.position.lerp(new THREE.Vector3(32, this.cameraHeight, 32), 0.1);
         this.stacks.forEach(stack => {
             stack.move(this.speed * this.delta);
             const {direction, stack: {position: {x, z}}} = stack;
@@ -102,6 +105,9 @@ class App {
                 console.log('Perfect');
             }
             this.stacks.shift();
+            this.cameraHeight++;
+            this.light.position.y++;
+            this.baseStack.position.y++;
         }
     }
 }
