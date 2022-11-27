@@ -12,10 +12,10 @@ export class Stack {
         return this;
     }
     move(speed) {
-        if(this.direction === 'x') {
-            this.stack.position.x += speed;
-        } else if (this.direction === 'z') {
+        if(this.direction === 'z') {
             this.stack.position.z += speed;
+        } else if (this.direction === 'x') {
+            this.stack.position.x += speed;
         }
     }
     show() {

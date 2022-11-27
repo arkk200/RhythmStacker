@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/arkk200/RhythmStacker#readme",
   "dependencies": {
+    "sass": "^1.56.1",
     "three": "^0.146.0"
   },
   "description": ""
