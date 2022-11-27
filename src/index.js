@@ -48,7 +48,9 @@ class App {
     }
 
     onBlur() {
-        if(!this.focus) return;
+        const { onBlur } = this;
+
+        if(!focus) return;
         console.log('blur');
         this.focus = false;
         const pausedScreen = document.querySelector('.paused-screen');
@@ -57,13 +59,14 @@ class App {
         pausedResume.addEventListener('click', () => {
             this.focus = true;
             pausedScreen.classList.add('hide');
-            window.onblur = this.onBlur.bind(this);
+            window.onblur = onBlur.bind(this);
         });
     }
 
     placeNotes() {
-        const {basebpm, delays} = noteJson;
-        const {stacks, scene, stackSize, speed} = this;
+        const { basebpm, delays } = noteJson;
+        const { stacks, scene, stackSize, speed } = this;
+
         for (let i = 0; i < delays.length; i++) {
             if (i % 2 === 0) {
                 stacks.push(new Stack(scene, stackSize, stackSize, i, -10 - (60 / basebpm) * delays[i] * speed, 0, 'x'));
@@ -74,64 +77,68 @@ class App {
     }
 
     onResize() {
+        const { camera, renderer } = this;
+
         console.log('resizing...');
-        this.camera.left = window.innerWidth / -32;
-        this.camera.right = window.innerWidth / 32;
-        this.camera.top = window.innerHeight / 32;
-        this.camera.bottom = window.innerHeight / -32;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.left = window.innerWidth / -32;
+        camera.right = window.innerWidth / 32;
+        camera.top = window.innerHeight / 32;
+        camera.bottom = window.innerHeight / -32;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     animate() {
-        let {reqAnimate, focus, delta, cameraHeight} = this;
-        const {renderer, scene, camera, clock, stacks, speed, stackSize, animate} = this;
+        let { reqAnimate, focus, delta, cameraHeight } = this;
+        const { renderer, scene, camera, clock, stacks, speed, stackSize, animate } = this;
 
         reqAnimate = window.requestAnimationFrame(animate.bind(this));
         renderer.render(scene, camera);
-        if(focus) {
-            delta = clock.getDelta();
-            if (cameraHeight - camera.position.y > 0.01) // camera animation
-                camera.position.lerp(new THREE.Vector3(32, cameraHeight, 32), 0.1);
-            // console.log('animating...');
-            stacks.forEach(stack => { // stack animation
-                stack.move(speed * delta);
-                const { direction, stack: { position: { x, z } } } = stack;
-                if ((direction === 'x' && x >= stackSize) || (direction === 'z' && z >= stackSize)) {
-                    console.log('Miss');
-                    stacks.shift();
-                }
-            });
-        }
+        delta = clock.getDelta();
+        if(!focus) return;
+        if (cameraHeight - camera.position.y > 0.01) // camera animation
+            camera.position.lerp(new THREE.Vector3(32, cameraHeight, 32), 0.1);
+        stacks.forEach(stack => { // stack animation
+            const { direction, stack: { position: { x, z } } } = stack;
+            stack.move(speed * delta);
+            if ((direction === 'x' && x >= stackSize) || (direction === 'z' && z >= stackSize)) {
+                console.log('Miss');
+                stacks.shift();
+            }
+        });
     }
 
     isLessThan(value) {
         const { direction, stack: { position: { x, z } } } = this.stacks[0]
+
         return (direction === 'x' && Math.abs(x) > value) ||
             (direction === 'z' && Math.abs(z) > value);
     }
 
     onClick(e) {
+        let { cameraHeight } = this;
+        const { stacks, isLessThan, speed, stackSize, light, baseStack } = this;
+
         if (e.key === 'k') {
-            if (this.stacks.length === 0) return;
-            if (this.isLessThan(this.speed / 2)) return;
-            if (this.isLessThan(this.stackSize)) {
+            if (stacks.length === 0) return;
+            if (isLessThan(speed / 2)) return;
+            if (isLessThan(stackSize)) {
                 console.log('Miss');
-            } else if (this.isLessThan(this.stackSize / 5 * 4)) {
+            } else if (isLessThan(stackSize / 5 * 4)) {
                 console.log('Bad');
-            } else if (this.isLessThan(this.stackSize / 5 * 3)) {
+            } else if (isLessThan(stackSize / 5 * 3)) {
                 console.log('Okay');
-            } else if (this.isLessThan(this.stackSize / 5 * 2)) {
+            } else if (isLessThan(stackSize / 5 * 2)) {
                 console.log('Good');
-            } else if (this.isLessThan(this.stackSize / 5 * 1)) {
+            } else if (isLessThan(stackSize / 5 * 1)) {
                 console.log('Great');
-            } else if (this.isLessThan(0)) {
+            } else if (isLessThan(0)) {
                 console.log('Perfect');
             }
-            this.stacks.shift();
-            this.cameraHeight++;
-            this.light.position.y++;
-            this.baseStack.position.y++;
+            stacks.shift();
+            cameraHeight++;
+            light.position.y++;
+            baseStack.position.y++;
         }
     }
 }
