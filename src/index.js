@@ -62,13 +62,13 @@ class App {
     }
 
     placeNotes() {
-        this.basebpm = noteJson.basebpm;
-        this.delays = noteJson.delays;
-        for (let i = 0; i < this.delays.length; i++) {
+        const {basebpm, delays} = noteJson;
+        const {stacks, scene, stackSize, speed} = this;
+        for (let i = 0; i < delays.length; i++) {
             if (i % 2 === 0) {
-                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, i, -10 - (60 / this.basebpm) * this.delays[i] * this.speed, 0, 'x'));
+                stacks.push(new Stack(scene, stackSize, stackSize, i, -10 - (60 / basebpm) * delays[i] * speed, 0, 'x'));
             } else {
-                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, i, 0, -10 - (60 / this.basebpm) * this.delays[i] * this.speed, 'z'));
+                stacks.push(new Stack(scene, stackSize, stackSize, i, 0, -10 - (60 / basebpm) * delays[i] * speed, 'z'));
             }
         }
     }
@@ -84,19 +84,22 @@ class App {
     }
 
     animate() {
-        this.reqAnimate = window.requestAnimationFrame(this.animate.bind(this));
-        if(this.focus) {
-            this.renderer.render(this.scene, this.camera);
-            this.delta = this.clock.getDelta();
-            if (this.cameraHeight - this.camera.position.y > 0.01) // camera animation
-                this.camera.position.lerp(new THREE.Vector3(32, this.cameraHeight, 32), 0.1);
-            console.log('animating...');
-            this.stacks.forEach(stack => { // stack animation
-                stack.move(this.speed * this.delta);
+        let {reqAnimate, focus, delta, cameraHeight} = this;
+        const {renderer, scene, camera, clock, stacks, speed, stackSize, animate} = this;
+
+        reqAnimate = window.requestAnimationFrame(animate.bind(this));
+        renderer.render(scene, camera);
+        if(focus) {
+            delta = clock.getDelta();
+            if (cameraHeight - camera.position.y > 0.01) // camera animation
+                camera.position.lerp(new THREE.Vector3(32, cameraHeight, 32), 0.1);
+            // console.log('animating...');
+            stacks.forEach(stack => { // stack animation
+                stack.move(speed * delta);
                 const { direction, stack: { position: { x, z } } } = stack;
-                if ((direction === 'x' && x >= this.stackSize) || (direction === 'z' && z >= this.stackSize)) {
+                if ((direction === 'x' && x >= stackSize) || (direction === 'z' && z >= stackSize)) {
                     console.log('Miss');
-                    this.stacks.shift();
+                    stacks.shift();
                 }
             });
         }
