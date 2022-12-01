@@ -1,13 +1,31 @@
 {
-    "basebpm": 400,
-    "delays": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        6,
-        8,
-        12
+    "offset": 1000,
+    "notes": [
+        {
+            "comment": "first stack's delay comes from stackoffset so bpm is 0",
+            "bpm": 0,
+            "basebpm": 400
+        },
+        {
+            "bpm": 400
+        },
+        {
+            "bpm": 400
+        },
+        {
+            "bpm": 400
+        },
+        {
+            "bpm": 400
+        },
+        {
+            "bpm": 200
+        },
+        {
+            "bpm": 200
+        },
+        {
+            "bpm": 100
+        }
     ]
 }

@@ -1,4 +1,3 @@
-import * as THREE from '../node_modules/three/build/three.module.js';
 import { StackMesh } from './stackMesh.js';
 
 export class Stack {

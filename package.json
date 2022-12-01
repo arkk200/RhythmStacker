@@ -1,9 +1,10 @@
 {
   "name": "rhythm-stacker",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sass": "node-sass src/public/css/game/game.scss src/public/css/game/game.css"
   },
   "repository": {
     "type": "git",
@@ -16,8 +17,18 @@
   },
   "homepage": "https://github.com/arkk200/RhythmStacker#readme",
   "dependencies": {
-    "sass": "^1.56.1",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "socket.io": "^4.5.4",
+    "swup": "^2.0.19",
     "three": "^0.146.0"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.20.5",
+    "@babel/node": "^7.20.5",
+    "@babel/preset-env": "^7.20.2",
+    "sass": "^1.56.1"
+  }
 }
