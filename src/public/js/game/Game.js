@@ -1,7 +1,7 @@
 import * as THREE from '/build/three.module.js';
 import noteJson from '/musics/Kevin-MacLeod_Silly-Fun_End-C.json' assert{type: "json"};
-import { Stack } from './stack.js';
-import { StackMesh } from './stackMesh.js';
+import { Stack } from './Stack.js';
+import { StackMesh } from '../StackMesh/StackMesh.js';
 
 export class Game {
     constructor() {
@@ -23,10 +23,12 @@ export class Game {
         this.obj = new THREE.Object3D();
         this.obj.position.set(0, 0, 0);
         this.scene.add(this.obj);
+
         this.light = new THREE.SpotLight(0xffffff, 1, 0, Math.PI / 4);
         this.light.position.set(40, 30, 30);
         this.light.target = this.obj;
         this.scene.add(this.light);
+
         this.baseStack = new StackMesh(this.stackSize, 40, this.stackSize, { color: 'red', opacity: 0.5, transparent: true });
         this.scene.add(this.baseStack);
 
@@ -41,7 +43,7 @@ export class Game {
         this.focus = true;
 
         this.placeNotes();
-        window.onblur = this.onBlur.bind(this);
+        window.addEventListener('blur', this.onBlur.bind(this));
         window.addEventListener('resize', this.onResize.bind(this));
         window.addEventListener('keydown', this.onClick.bind(this));
         this.animate.bind(this)();
@@ -56,7 +58,6 @@ export class Game {
         pausedResume.addEventListener('click', () => {
             this.focus = true;
             pausedScreen.classList.add('hide');
-            window.onblur = this.onBlur.bind(this);
         });
     }
 

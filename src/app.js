@@ -15,10 +15,9 @@ app.use('/build/', express.static(path.join(__dirname, '../node_modules/three/bu
 app.use('/jsm/', express.static(path.join(__dirname, '../node_modules/three/examples/jsm')));
 // swup
 app.use('/dist/', express.static(path.join(__dirname, '../node_modules/swup/dist')));
-console.log(path.join(__dirname, '../node_modules/swup/dist'));
 // musics
 app.use('/musics/', express.static(__dirname + '/musics'));
-
+// routes
 app.get('/', (_, res) => res.render('index.html'));
 app.get('/game', (_, res) => res.render('game.html'));
 
@@ -29,5 +28,5 @@ app.get('/game', (_, res) => res.render('game.html'));
 
 
 app.listen(port, () => {
-    console.log(`Exmaple app listening on port ${port}`);
+    console.log(`Listening on http://localhost:3000/`);
 })
