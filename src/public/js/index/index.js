@@ -1,8 +1,12 @@
 import * as THREE from '/build/three.module.js';
+import { StackMesh } from '../StackMesh/StackMesh.js';
+import { moveObj } from '../utils/utils.js';
+import { GoScreen } from '../utils/indexUtils.js';
 
 class App {
     constructor() {
         this.status = '0';
+        this.history = ["GoMainScreen"];
 
         this.scene = new THREE.Scene();
         this.scene.color = new THREE.Color(0, 0, 0);
@@ -29,25 +33,46 @@ class App {
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        this.centerStack = new THREE.Mesh(
-            new THREE.BoxGeometry(4, 10, 4),
-            new THREE.MeshPhongMaterial({ color: 'white' })
-        );
-        this.centerStack.position.y = -7;
-        this.centerStack.name = 'start';
-        this.scene.add(this.centerStack);
+        this.stackForStart = new StackMesh(4, 10, 4, { color: "white" });
+        this.stackForStart.position.y = -7;
+        this.stackForStart.name = "GoOptionScreen";
+        this.scene.add(this.stackForStart);
 
-        this.option1Stack = new THREE.Mesh(
-            new THREE.BoxGeometry(3, 10, 3),
-            new THREE.MeshPhongMaterial({ color: 'white' })
-        );
+        // Stack to Show Song List
+        this.stackToGoFamousSongs = new StackMesh(3, 10, 3, { color: "red" });
+        this.stackToGoFamousSongs.position.set(-3, -12, 3);
+        this.stackToGoFamousSongs.name = "GoFamousScreen";
+        this.scene.add(this.stackToGoFamousSongs);
+
+        this.stackToGoFavoriteSongs = new StackMesh(3, 10, 3, { color: "orange" });
+        this.stackToGoFavoriteSongs.position.set(-3, -12, 3);
+        this.stackToGoFavoriteSongs.name = "GoFavoriteScreen";
+        this.scene.add(this.stackToGoFavoriteSongs);
+
+        this.stackToGoAllSongs = new StackMesh(3, 10, 3, { color: "yellow" });
+        this.stackToGoAllSongs.position.set(-3, -12, 3);
+        this.stackToGoAllSongs.name = "GoAllScreen";
+        this.scene.add(this.stackToGoAllSongs);
+
+        this.stackToGoEditor = new StackMesh(3, 10, 3, { color: "green" });
+        this.stackToGoEditor.position.set(-3, -12, 3);
+        this.stackToGoEditor.name = "GoEditorScreen";
+        this.scene.add(this.stackToGoEditor);
+
+        this.goScreen = new GoScreen(
+            this.stackForStart,
+            this.stackToGoFamousSongs,
+            this.stackToGoFavoriteSongs,
+            this.stackToGoAllSongs,
+            this.stackToGoEditor
+        )
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        window.addEventListener('resize', this.onResize.bind(this));
-        window.addEventListener('mousedown', this.onMouseDown.bind(this));
+        window.addEventListener("resize", this.onResize.bind(this));
+        window.addEventListener("mousedown", this.onMouseDown.bind(this));
         this.animate.bind(this)();
     }
 
@@ -66,17 +91,38 @@ class App {
             y: -(e.clientY / window.innerHeight) * 2 + 1
         };
         this.raycaster.setFromCamera(mousePos, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.scene.children);
-        console.log(intersects);
-    }
-
-    moveObj(obj, pos, alp) {
-        obj.position.lerp(new THREE.Vector3(...pos), alp);
+        this.intersectObj = this.raycaster.intersectObjects(this.scene.children)[0];
+        if(!this.intersectObj) return;
+        if (this.history.at(-1) === this.intersectObj.object.name) {
+            this.history.pop();
+        } else {
+            this.history.push(this.intersectObj.object.name);
+        }
     }
 
     animate() {
         this.reqAnimate = window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
+        switch(this.history.at(-1)) {
+            case "GoMainScreen":
+                this.goScreen.goMain();
+                break;
+            case "GoOptionScreen":
+                this.goScreen.goOpts();
+                break;
+            case "GoFamousScreen":
+                this.goScreen.goFamous();
+                break;
+            case "GoFavoriteScreen":
+                this.goScreen.goFavorite();
+                break;
+            case "GoAllScreen":
+                this.goScreen.goAll();
+                break;
+            case "GoEditorScreen":
+                this.goScreen.goEdit();
+                break;
+        }
     }
 }
 
