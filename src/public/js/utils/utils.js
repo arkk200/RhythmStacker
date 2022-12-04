@@ -7,5 +7,13 @@ import * as THREE from '/build/three.module.js';
  * @param alp 그 위치로 몇% 만큼 이동할 수치 (0 ~ 1);
  */
 export function moveObj(obj, pos, alp) {
-    obj.position.lerp(new THREE.Vector3(...pos), alp);
+    obj.position.set(...lerp(obj.position.values, pos, alp));
+}
+
+export function lerp(pos1, pos2, t) {
+    return [
+        (pos2 - pos1.x) * t + pos1.x,
+        (pos2.y - pos1.y) * t + pos2.y,
+        (pos2.z - pos2.z) * t + pos1.z
+    ];
 }
