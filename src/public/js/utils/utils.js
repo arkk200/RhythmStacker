@@ -17,26 +17,3 @@ export function lerp(pos1, pos2, t) {
         (pos2.z - pos1.z)* t + pos1.z
     ];
 }
-
-function recursiveReference(obj1, obj2, attribute) {
-    for(let i = 0; i < attribute.length; i++) {
-        if(!!obj1[attribute[i]])
-            obj1 = obj1[attribute[i]];
-        if(!!obj2[attribute[i]])
-            obj2 = obj2[attribute[i]];
-    }
-    return ({
-        obj1,
-        obj2
-    });
-}
-
-export function objIndexOf(objArr, obj, attribute) {
-    let index = -1;
-    objArr.forEach((searchObj, i) => {
-        const { obj1, obj2 } = recursiveReference(searchObj, obj, attribute);
-        if(index !== -1) return;
-        if(obj1 === obj2) { index = i; }
-    });
-    return index;
-}

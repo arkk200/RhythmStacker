@@ -1,7 +1,6 @@
 import * as THREE from '/build/three.module.js';
 import { StackMesh } from '../utils/meshUtils.js';
 import { GoScreen } from '../utils/indexUtils.js';
-import { objIndexOf } from '../utils/utils.js';
 
 class App {
     constructor() {
@@ -86,7 +85,8 @@ class App {
         this.intersectObj = this.raycaster.intersectObjects(this.scene.children)[0];
 
         if (!this.intersectObj) return;
-        if (objIndexOf(this.history, this.intersectObj.object, ["name", "step"]) !== -1 && objIndexOf(this.history, this.intersectObj.object, ["name", "step"]) !== this.history.length - 1) return;
+        if (this.history.some(obj => obj.step === this.intersectObj.object.name.step) &&
+            this.history.at(-1).step !== this.intersectObj.object.name.step) return;
 
         const isStepSame = this.history.at(-1).step === this.intersectObj.object.name.step;
         const isPageSame = this.history.at(-1).page === this.intersectObj.object.name.page;
