@@ -1,5 +1,5 @@
 import * as THREE from '/build/three.module.js';
-import { StackMesh } from '../StackMesh/StackMesh.js';
+import { StackMesh } from '../utils/meshUtils.js';
 import { GoScreen } from '../utils/indexUtils.js';
 import { objIndexOf } from '../utils/utils.js';
 
@@ -28,73 +28,35 @@ class App {
         this.obj.position.set(0, 0, 0);
         this.scene.add(this.obj);
 
-        this.light = new THREE.SpotLight(0xffffff, 1, 0, Math.PI / 4);
-        this.light.position.set(40, 30, 30);
+        this.light = new THREE.SpotLight(0xffffff, 1.1, 0, Math.PI / 4);
+        this.light.position.set(60, 50, 40);
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        this.stackOptGap = 2.8;
-        this.stackOptY = -20;
-        this.stacksSize = {
-            startStack: [3.5, 40, 3.5],
-            optionStack: [2, 20, 2]
-        }
-        this.stacksPos = {
-            startStack: [0, -24, 0],
-            famousSongsStack: [-this.stackOptGap, this.stackOptY, 2 * this.stackOptGap],
-            favoriteSongsStack: [0, this.stackOptY, this.stackOptGap],
-            allSongsStack: [this.stackOptGap, this.stackOptY, 0],
-            editorStack: [2 * this.stackOptGap, this.stackOptY, -this.stackOptGap]
-        }
-
-        this.stackForStart = new StackMesh(3.5, 40, 3.5, { color: "white" });
-        this.stackForStart.position.set(...this.stacksPos.startStack);
-        this.stackForStart.name = {
-            step: 2,
-            page: "Option"
-        };
+        this.stackForStart = new StackMesh(3.5, 40, 3.5, { color: "white" }, [0, -24, 0], { step: 2, page: "Option" });
         this.scene.add(this.stackForStart);
 
         // Stack that Options
-        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, { color: "red" });
-        this.stackToGoFamousSongs.position.set(...this.stacksPos.famousSongsStack);
-        this.stackToGoFamousSongs.name = {
-            step: 3,
-            page: "FamousSongs"
-        };
+        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, { color: "red" }, [-3, -20, 6], { step: 3, page: "FamousSongs" });
         this.scene.add(this.stackToGoFamousSongs);
 
-        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, { color: "orange" });
-        this.stackToGoFavoriteSongs.position.set(...this.stacksPos.favoriteSongsStack);
-        this.stackToGoFavoriteSongs.name = {
-            step: 3,
-            page: "FavoriteSongs"
-        };;
+        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, { color: "orange" }, [0, -20, 3], { step: 3, page: "FavoriteSongs" });
         this.scene.add(this.stackToGoFavoriteSongs);
 
-        this.stackToGoAllSongs = new StackMesh(2, 20, 2, { color: "yellow" });
-        this.stackToGoAllSongs.position.set(...this.stacksPos.allSongsStack);
-        this.stackToGoAllSongs.name = {
-            step: 3,
-            page: "AllSongs"
-        };
+        this.stackToGoAllSongs = new StackMesh(2, 20, 2, { color: "yellow" }, [3, -20, 0], { step: 3, page: "AllSongs" });
         this.scene.add(this.stackToGoAllSongs);
 
-        this.stackToGoEditor = new StackMesh(2, 20, 2, { color: "green" });
-        this.stackToGoEditor.position.set(...this.stacksPos.editorStack);
-        this.stackToGoEditor.name = {
-            step: 3,
-            page: "Editor"
-        };;
+        this.stackToGoEditor = new StackMesh(2, 20, 2, { color: "green" }, [6, -20, -3], { step: 3, page: "Editor" });
         this.scene.add(this.stackToGoEditor);
 
         this.goScreen = new GoScreen(
             this.stackForStart,
-            this.stackToGoFamousSongs,
-            this.stackToGoFavoriteSongs,
-            this.stackToGoAllSongs,
-            this.stackToGoEditor,
-            this.stackOptGap
+            [
+                this.stackToGoFamousSongs, 
+                this.stackToGoFavoriteSongs, 
+                this.stackToGoAllSongs, 
+                this.stackToGoEditor
+            ]
         )
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -143,39 +105,21 @@ class App {
     animate() {
         this.reqAnimate = window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
-        switch (this.history.at(-1).page) {
-            case "Main":
-                this.goScreen.goMain({
+        switch (this.history.at(-1).step) {
+            case 1:
+                this.goScreen.moveStacks({
                     startStackY: -24,
                     optionStackY: -20
                 });
                 break;
-            case "Option":
-                this.goScreen.goOpts({
+            case 2:
+                this.goScreen.moveStacks({
                     startStackY: -14,
                     optionStackY: -12
                 });
                 break;
-            case "FamousSongs":
-                this.goScreen.goFamous({
-                    startStackY: -8,
-                    optionStackY: -2
-                });
-                break;
-            case "FavoriteSongs":
-                this.goScreen.goFavorite({
-                    startStackY: -8,
-                    optionStackY: -2
-                });
-                break;
-            case "AllSongs":
-                this.goScreen.goAll({
-                    startStackY: -8,
-                    optionStackY: -2
-                });
-                break;
-            case "Editor":
-                this.goScreen.goEdit({
+            case 3:
+                this.goScreen.moveStacks({
                     startStackY: -8,
                     optionStackY: -2
                 });

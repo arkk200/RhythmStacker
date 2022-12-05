@@ -1,4 +1,4 @@
-import { StackMesh } from '../StackMesh/StackMesh.js';
+import { StackMesh } from './meshUtils.js';
 
 export class Stack {
     constructor(scene, width, depth, index, posX, posZ, direction) {
