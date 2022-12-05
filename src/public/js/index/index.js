@@ -11,10 +11,10 @@ class App {
         this.scene = new THREE.Scene();
         this.scene.color = new THREE.Color(0, 0, 0);
         this.camera = new THREE.OrthographicCamera(
-            window.innerWidth / -256,
-            window.innerWidth / 256,
-            window.innerHeight / 256,
-            window.innerHeight / -256,
+            window.innerWidth / -128,
+            window.innerWidth / 128,
+            window.innerHeight / 128,
+            window.innerHeight / -128,
             0.1,
             1000
         );
@@ -33,42 +33,55 @@ class App {
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        this.stackForStart = new StackMesh(3.5, 20, 3.5, { color: "white" });
-        this.stackForStart.position.y = -10;
+        this.stackOptGap = 2.8;
+        this.stackOptY = -20;
+        this.stacksSize = {
+            startStack: [3.5, 40, 3.5],
+            optionStack: [2, 20, 2]
+        }
+        this.stacksPos = {
+            startStack: [0, -24, 0],
+            famousSongsStack: [-this.stackOptGap, this.stackOptY, 2 * this.stackOptGap],
+            favoriteSongsStack: [0, this.stackOptY, this.stackOptGap],
+            allSongsStack: [this.stackOptGap, this.stackOptY, 0],
+            editorStack: [2 * this.stackOptGap, this.stackOptY, -this.stackOptGap]
+        }
+
+        this.stackForStart = new StackMesh(3.5, 40, 3.5, { color: "white" });
+        this.stackForStart.position.set(...this.stacksPos.startStack);
         this.stackForStart.name = {
             step: 2,
             page: "Option"
         };
         this.scene.add(this.stackForStart);
 
-        // Stack to Show Song List
-        this.stackOptGap = 2.8;
-        this.stackToGoFamousSongs = new StackMesh(2, 10, 2, { color: "red" });
-        this.stackToGoFamousSongs.position.set(-this.stackOptGap, -14, 2*this.stackOptGap);
+        // Stack that Options
+        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, { color: "red" });
+        this.stackToGoFamousSongs.position.set(...this.stacksPos.famousSongsStack);
         this.stackToGoFamousSongs.name = {
             step: 3,
             page: "FamousSongs"
         };
         this.scene.add(this.stackToGoFamousSongs);
 
-        this.stackToGoFavoriteSongs = new StackMesh(2, 10, 2, { color: "orange" });
-        this.stackToGoFavoriteSongs.position.set(0, -14, this.stackOptGap);
+        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, { color: "orange" });
+        this.stackToGoFavoriteSongs.position.set(...this.stacksPos.favoriteSongsStack);
         this.stackToGoFavoriteSongs.name = {
             step: 3,
             page: "FavoriteSongs"
         };;
         this.scene.add(this.stackToGoFavoriteSongs);
 
-        this.stackToGoAllSongs = new StackMesh(2, 10, 2, { color: "yellow" });
-        this.stackToGoAllSongs.position.set(this.stackOptGap, -14, 0);
+        this.stackToGoAllSongs = new StackMesh(2, 20, 2, { color: "yellow" });
+        this.stackToGoAllSongs.position.set(...this.stacksPos.allSongsStack);
         this.stackToGoAllSongs.name = {
             step: 3,
             page: "AllSongs"
         };
         this.scene.add(this.stackToGoAllSongs);
 
-        this.stackToGoEditor = new StackMesh(2, 10, 2, { color: "green" });
-        this.stackToGoEditor.position.set(2*this.stackOptGap, -14, -this.stackOptGap);
+        this.stackToGoEditor = new StackMesh(2, 20, 2, { color: "green" });
+        this.stackToGoEditor.position.set(...this.stacksPos.editorStack);
         this.stackToGoEditor.name = {
             step: 3,
             page: "Editor"
@@ -94,10 +107,10 @@ class App {
     }
 
     onResize() {
-        this.camera.left = window.innerWidth / -256;
-        this.camera.right = window.innerWidth / 256;
-        this.camera.top = window.innerHeight / 256;
-        this.camera.bottom = window.innerHeight / -256;
+        this.camera.left = window.innerWidth / -128;
+        this.camera.right = window.innerWidth / 128;
+        this.camera.top = window.innerHeight / 128;
+        this.camera.bottom = window.innerHeight / -128;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
@@ -110,8 +123,8 @@ class App {
         this.raycaster.setFromCamera(mousePos, this.camera);
         this.intersectObj = this.raycaster.intersectObjects(this.scene.children)[0];
 
-        if(!this.intersectObj) return;
-        if(objIndexOf(this.history, this.intersectObj.object, ["name", "step"]) !== -1 && objIndexOf(this.history, this.intersectObj.object, ["name", "step"]) !== this.history.length - 1) return;
+        if (!this.intersectObj) return;
+        if (objIndexOf(this.history, this.intersectObj.object, ["name", "step"]) !== -1 && objIndexOf(this.history, this.intersectObj.object, ["name", "step"]) !== this.history.length - 1) return;
 
         const isStepSame = this.history.at(-1).step === this.intersectObj.object.name.step;
         const isPageSame = this.history.at(-1).page === this.intersectObj.object.name.page;
@@ -130,24 +143,42 @@ class App {
     animate() {
         this.reqAnimate = window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
-        switch(this.history.at(-1).page) {
+        switch (this.history.at(-1).page) {
             case "Main":
-                this.goScreen.goMain();
+                this.goScreen.goMain({
+                    startStackY: -24,
+                    optionStackY: -20
+                });
                 break;
             case "Option":
-                this.goScreen.goOpts();
+                this.goScreen.goOpts({
+                    startStackY: -14,
+                    optionStackY: -12
+                });
                 break;
             case "FamousSongs":
-                this.goScreen.goFamous();
+                this.goScreen.goFamous({
+                    startStackY: -8,
+                    optionStackY: -2
+                });
                 break;
             case "FavoriteSongs":
-                this.goScreen.goFavorite();
+                this.goScreen.goFavorite({
+                    startStackY: -8,
+                    optionStackY: -2
+                });
                 break;
             case "AllSongs":
-                this.goScreen.goAll();
+                this.goScreen.goAll({
+                    startStackY: -8,
+                    optionStackY: -2
+                });
                 break;
             case "Editor":
-                this.goScreen.goEdit();
+                this.goScreen.goEdit({
+                    startStackY: -8,
+                    optionStackY: -2
+                });
                 break;
         }
     }
