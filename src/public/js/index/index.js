@@ -1,6 +1,6 @@
 import * as THREE from '/build/three.module.js';
 import { StackMesh } from '../utils/meshUtils.js';
-import { GoScreen } from '../utils/indexUtils.js';
+import { getTextTextureOnTop, GoScreen } from '../utils/indexUtils.js';
 import { getTextTexture } from './canvas/canvas.js';
 
 class App {
@@ -34,30 +34,26 @@ class App {
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        const texture = getTextTexture('start', 'Bold 30px Arial', 100, 100);
-        const materials = [
-            new THREE.MeshPhongMaterial({ color: 'white' }),
-            new THREE.MeshPhongMaterial({ color: 'white' }),
-            new THREE.MeshPhongMaterial({ color: 'white', map: texture }),
-            new THREE.MeshPhongMaterial({ color: 'white' }),
-            new THREE.MeshPhongMaterial({ color: 'white' }),
-            new THREE.MeshPhongMaterial({ color: 'white' })
-        ]
+        let materials = getTextTextureOnTop('Start', 'Bold 30px Arial', 100, 100, 'white');
         this.stackForStart = new StackMesh(3.5, 40, 3.5, materials, [0, -24, 0], { step: 2, page: "Option" });
         console.log(this.stackForStart);
         this.scene.add(this.stackForStart);
 
         // Stack that Options
-        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'red' }), [-4, -22, 3], { step: 3, page: "FamousSongs" });
+        materials = getTextTextureOnTop('Famous', 'Bold 20px Arial', 100, 100, 'red');
+        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, materials, [-4, -22, 3], { step: 3, page: "FamousSongs" });
         this.scene.add(this.stackToGoFamousSongs);
 
-        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'orange' }), [1, -22, 4], { step: 3, page: "FavoriteSongs" });
+        materials = getTextTextureOnTop('Favorites', 'Bold 20px Arial', 100, 100, 'orange');
+        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, materials, [1, -22, 4], { step: 3, page: "FavoriteSongs" });
         this.scene.add(this.stackToGoFavoriteSongs);
 
-        this.stackToGoAllSongs = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'yellow' }), [4, -22, 1], { step: 3, page: "AllSongs" });
+        materials = getTextTextureOnTop('All', 'Bold 20px Arial', 100, 100, 'yellow');
+        this.stackToGoAllSongs = new StackMesh(2, 20, 2, materials, [4, -22, 1], { step: 3, page: "AllSongs" });
         this.scene.add(this.stackToGoAllSongs);
 
-        this.stackToGoEditor = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'green' }), [3, -22, -4], { step: 3, page: "Editor" });
+        materials = getTextTextureOnTop('Editor', 'Bold 20px Arial', 100, 100, 'green');
+        this.stackToGoEditor = new StackMesh(2, 20, 2, materials, [3, -22, -4], { step: 3, page: "Editor" });
         this.scene.add(this.stackToGoEditor);
 
         this.goScreen = new GoScreen(

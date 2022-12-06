@@ -1,3 +1,4 @@
+import { getTextTexture } from '../index/canvas/canvas.js';
 import { moveObj, rotateObj } from './utils.js';
 import * as THREE from '/build/three.module.js';
 
@@ -17,12 +18,24 @@ export class GoScreen {
             moveObj(optStack, new THREE.Vector3(optStack.position.x, optionStackY, optStack.position.z), 0.1);
         });
         this.scene.traverse(obj => {
-            if(!(obj instanceof THREE.Mesh && !!obj?.name?.page)) return;
-            if(obj?.name?.page === currentPage) {
+            if (!(obj instanceof THREE.Mesh && !!obj?.name?.page)) return;
+            if (obj?.name?.page === currentPage) {
                 rotateObj(obj, new THREE.Vector3(0, Math.PI / 4, 0), 0.1);
             } else {
                 rotateObj(obj, new THREE.Vector3(0, 0, 0), 0.1);
             }
         })
     }
+}
+
+export function getTextTextureOnTop(word, font, width, height, color) {
+    const texture = getTextTexture(word, font, width, height);
+    return [
+        new THREE.MeshPhongMaterial({ color }),
+        new THREE.MeshPhongMaterial({ color }),
+        new THREE.MeshPhongMaterial({ color, map: texture }),
+        new THREE.MeshPhongMaterial({ color }),
+        new THREE.MeshPhongMaterial({ color }),
+        new THREE.MeshPhongMaterial({ color })
+    ]
 }
