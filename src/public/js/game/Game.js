@@ -29,7 +29,7 @@ export class Game {
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        this.baseStack = new StackMesh(this.stackSize, 40, this.stackSize, { color: 'red', opacity: 0.5, transparent: true });
+        this.baseStack = new StackMesh(this.stackSize, 40, this.stackSize, new THREE.MeshPhongMaterial({ color: 'red' }));
         this.scene.add(this.baseStack);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });

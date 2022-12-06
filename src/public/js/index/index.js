@@ -1,6 +1,7 @@
 import * as THREE from '/build/three.module.js';
 import { StackMesh } from '../utils/meshUtils.js';
 import { GoScreen } from '../utils/indexUtils.js';
+import { getTextTexture } from './canvas/canvas.js';
 
 class App {
     constructor() {
@@ -33,20 +34,30 @@ class App {
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        this.stackForStart = new StackMesh(3.5, 40, 3.5, { color: "white" }, [0, -24, 0], { step: 2, page: "Option" });
+        const texture = getTextTexture('start', 'Bold 30px Arial', 100, 100);
+        const materials = [
+            new THREE.MeshPhongMaterial({ color: 'white' }),
+            new THREE.MeshPhongMaterial({ color: 'white' }),
+            new THREE.MeshPhongMaterial({ color: 'white', map: texture }),
+            new THREE.MeshPhongMaterial({ color: 'white' }),
+            new THREE.MeshPhongMaterial({ color: 'white' }),
+            new THREE.MeshPhongMaterial({ color: 'white' })
+        ]
+        this.stackForStart = new StackMesh(3.5, 40, 3.5, materials, [0, -24, 0], { step: 2, page: "Option" });
+        console.log(this.stackForStart);
         this.scene.add(this.stackForStart);
 
         // Stack that Options
-        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, { color: "red" }, [-4, -22, 3], { step: 3, page: "FamousSongs" });
+        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'red' }), [-4, -22, 3], { step: 3, page: "FamousSongs" });
         this.scene.add(this.stackToGoFamousSongs);
 
-        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, { color: "orange" }, [1, -22, 4], { step: 3, page: "FavoriteSongs" });
+        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'orange' }), [1, -22, 4], { step: 3, page: "FavoriteSongs" });
         this.scene.add(this.stackToGoFavoriteSongs);
 
-        this.stackToGoAllSongs = new StackMesh(2, 20, 2, { color: "yellow" }, [4, -22, 1], { step: 3, page: "AllSongs" });
+        this.stackToGoAllSongs = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'yellow' }), [4, -22, 1], { step: 3, page: "AllSongs" });
         this.scene.add(this.stackToGoAllSongs);
 
-        this.stackToGoEditor = new StackMesh(2, 20, 2, { color: "green" }, [3, -22, -4], { step: 3, page: "Editor" });
+        this.stackToGoEditor = new StackMesh(2, 20, 2, new THREE.MeshPhongMaterial({ color: 'green' }), [3, -22, -4], { step: 3, page: "Editor" });
         this.scene.add(this.stackToGoEditor);
 
         this.goScreen = new GoScreen(
