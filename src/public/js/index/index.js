@@ -6,6 +6,7 @@ class App {
     constructor() {
         this.status = '0';
         this.history = [{ step: 1, page: "Main" }];
+        this.selectedObject = null;
 
         this.scene = new THREE.Scene();
         this.scene.color = new THREE.Color(0, 0, 0);
@@ -36,26 +37,27 @@ class App {
         this.scene.add(this.stackForStart);
 
         // Stack that Options
-        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, { color: "red" }, [-3, -20, 6], { step: 3, page: "FamousSongs" });
+        this.stackToGoFamousSongs = new StackMesh(2, 20, 2, { color: "red" }, [-4, -22, 3], { step: 3, page: "FamousSongs" });
         this.scene.add(this.stackToGoFamousSongs);
 
-        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, { color: "orange" }, [0, -20, 3], { step: 3, page: "FavoriteSongs" });
+        this.stackToGoFavoriteSongs = new StackMesh(2, 20, 2, { color: "orange" }, [1, -22, 4], { step: 3, page: "FavoriteSongs" });
         this.scene.add(this.stackToGoFavoriteSongs);
 
-        this.stackToGoAllSongs = new StackMesh(2, 20, 2, { color: "yellow" }, [3, -20, 0], { step: 3, page: "AllSongs" });
+        this.stackToGoAllSongs = new StackMesh(2, 20, 2, { color: "yellow" }, [4, -22, 1], { step: 3, page: "AllSongs" });
         this.scene.add(this.stackToGoAllSongs);
 
-        this.stackToGoEditor = new StackMesh(2, 20, 2, { color: "green" }, [6, -20, -3], { step: 3, page: "Editor" });
+        this.stackToGoEditor = new StackMesh(2, 20, 2, { color: "green" }, [3, -22, -4], { step: 3, page: "Editor" });
         this.scene.add(this.stackToGoEditor);
 
         this.goScreen = new GoScreen(
             this.stackForStart,
             [
-                this.stackToGoFamousSongs, 
-                this.stackToGoFavoriteSongs, 
-                this.stackToGoAllSongs, 
+                this.stackToGoFamousSongs,
+                this.stackToGoFavoriteSongs,
+                this.stackToGoAllSongs,
                 this.stackToGoEditor
-            ]
+            ],
+            this.scene
         )
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -87,19 +89,21 @@ class App {
         if (!this.intersectObj) return;
         if (this.history.some(obj => obj.step === this.intersectObj.object.name.step) &&
             this.history.at(-1).step !== this.intersectObj.object.name.step) return;
-
         const isStepSame = this.history.at(-1).step === this.intersectObj.object.name.step;
         const isPageSame = this.history.at(-1).page === this.intersectObj.object.name.page;
-        if (isStepSame && isPageSame) {
-            this.history.pop();
-        } else if (isStepSame && !isPageSame) {
-            this.history.at(-1).page = this.intersectObj.object.name.page;
+        if (isStepSame) {
+            if (isPageSame) {
+                this.history.pop();
+            } else {
+                this.history.at(-1).page = this.intersectObj.object.name.page;
+            }
         } else {
             this.history.push({
                 step: this.intersectObj.object.name.step,
                 page: this.intersectObj.object.name.page
             });
         }
+        this.currentPage = this.history.at(-1).page;
     }
 
     animate() {
@@ -109,19 +113,22 @@ class App {
             case 1:
                 this.goScreen.moveStacks({
                     startStackY: -24,
-                    optionStackY: -20
+                    optionStackY: -22,
+                    currentPage: this.currentPage
                 });
                 break;
             case 2:
                 this.goScreen.moveStacks({
                     startStackY: -14,
-                    optionStackY: -12
+                    optionStackY: -14,
+                    currentPage: this.currentPage
                 });
                 break;
             case 3:
                 this.goScreen.moveStacks({
                     startStackY: -8,
-                    optionStackY: -2
+                    optionStackY: -4,
+                    currentPage: this.currentPage
                 });
                 break;
         }

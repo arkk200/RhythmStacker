@@ -10,10 +10,14 @@ export function moveObj(obj, pos, alp) {
     obj.position.set(...lerp(obj.position, pos, alp));
 }
 
-export function lerp(pos1, pos2, t) {
+export function rotateObj(obj, rot, alp) {
+    obj.rotation.set(...lerp(obj.rotation, rot, alp));
+}
+
+export function lerp(a, b, t) {
     return [
-        (pos2.x - pos1.x) * t + pos1.x,
-        (pos2.y - pos1.y) * t + pos1.y,
-        (pos2.z - pos1.z)* t + pos1.z
+        (b.x - a.x) * t + a.x,
+        (b.y - a.y) * t + a.y,
+        (b.z - a.z)* t + a.z
     ];
 }
