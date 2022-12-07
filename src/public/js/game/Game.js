@@ -1,7 +1,6 @@
 import * as THREE from '/build/three.module.js';
 import noteJson from '/musics/Kevin-MacLeod_Silly-Fun_End-C.json' assert{type: "json"};
-import { Stack } from '../utils/gameUtils.js';
-import { StackMesh } from '../utils/meshUtils.js';
+import { StackMesh, Stack } from '../utils/utils.js';
 
 export class Game {
     constructor() {

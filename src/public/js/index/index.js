@@ -1,7 +1,5 @@
 import * as THREE from '/build/three.module.js';
-import { StackMesh } from '../utils/meshUtils.js';
-import { getTextTextureOnTop, GoScreen } from '../utils/indexUtils.js';
-import { getTextTexture } from './canvas/canvas.js';
+import { StackMesh, getTextTextureOnTop, GoScreen } from '../utils/utils.js';
 
 class App {
     constructor() {
@@ -35,7 +33,7 @@ class App {
         this.scene.add(this.light);
 
         let materials = getTextTextureOnTop('Start', 'Bold 30px Arial', 100, 100, 'white');
-        this.stackForStart = new StackMesh(3.5, 40, 3.5, materials, [0, -24, 0], { step: 2, page: "Option" });
+        this.stackForStart = new StackMesh(3, 40, 3, materials, [0, -24, 0], { step: 2, page: "Option" });
         console.log(this.stackForStart);
         this.scene.add(this.stackForStart);
 
