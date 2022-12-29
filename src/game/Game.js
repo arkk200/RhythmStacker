@@ -1,6 +1,6 @@
-import * as THREE from '/build/three.module.js';
-import noteJson from '/musics/Kevin-MacLeod_Silly-Fun_End-C.json' assert{type: "json"};
-import { StackMesh, Stack } from '../utils/utils.js';
+import * as THREE from 'three';
+import noteJson from '../../dummyData/music.json' assert{type: "json"};
+import { Stack, getStack } from '../utils/utils.js';
 
 export class Game {
     constructor() {
@@ -28,7 +28,7 @@ export class Game {
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        this.baseStack = new StackMesh(this.stackSize, 40, this.stackSize, new THREE.MeshPhongMaterial({ color: 'red' }));
+        this.baseStack = getStack({ side: 3, height: 40 }, { color: "red" });
         this.scene.add(this.baseStack);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });

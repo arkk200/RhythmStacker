@@ -1,34 +1,17 @@
 {
   "name": "rhythm-stacker",
-  "version": "1.0.0",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "nodemon",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "sass": "node-sass src/public/css/game/game.scss src/public/css/game/game.css"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/arkk200/RhythmStacker.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/arkk200/RhythmStacker/issues"
-  },
-  "homepage": "https://github.com/arkk200/RhythmStacker#readme",
-  "dependencies": {
-    "ejs": "^3.1.8",
-    "express": "^4.18.2",
-    "socket.io": "^4.5.4",
-    "swup": "^2.0.19",
-    "three": "^0.146.0"
-  },
-  "description": "",
   "devDependencies": {
-    "@babel/cli": "^7.19.3",
-    "@babel/core": "^7.20.5",
-    "@babel/node": "^7.20.5",
-    "@babel/preset-env": "^7.20.2",
-    "sass": "^1.56.1"
+    "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "three": "^0.148.0"
   }
 }
