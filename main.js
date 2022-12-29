@@ -106,26 +106,28 @@ class App {
 
         switch (this.step) {
             case 0:
-                gsap.to(this.stackForStart.position, {x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5}); gsap.to(this.stackForStart.scale, {x:1, z:1, duration: 1, ease: "power4.out", delay: 0.5});
+                gsap.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 }); gsap.to(this.stackForStart.scale, { x:1, z:1, duration: 1, ease: "power4.out", delay: 0.5 });
                 this.optionStacks.forEach((stack, index) => {
                     gsap.to(stack.position, { y: -22, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 + (index !== 0 ? 0.15 : 0) });
                     gsap.to(stack.scale, { x: 1, z: 1, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 + (index !== 0 ? 0.15 : 0) });
                 });
                 break;
             case 1:
+                gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
                 gsap.to(this.stackForStart.position, {x: -5, z: -5, y: -20, duration: 1, ease: "power4.out"}); gsap.to(this.stackForStart.scale, {x:0.5, z:0.5, duration: 1, ease: "power4.out"});
 
                 stackPositions = [-5, 1, 4, 3];
                 this.optionStacks.forEach((stack, index) => {
-                    gsap.to(stack.position, { x: stackPositions[index], y: -10, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 + 0.2});
+                    gsap.to(stack.position, { x: stackPositions[index], y: -10, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 + 0.15});
                     gsap.to(stack.scale, { x: 0.6, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 + 0.2});
                 });
                 break;
             case 2:
-                gsap.to(this.stackForStart.position, {y: -35, duration: 1, ease: "power4.out"});
+                gsap.to(this.camera.position, { x: 38, z: 26, duration: 1, ease: "power4.out" });
+                gsap.to(this.stackForStart.position, { y: -35, duration: 1, ease: "power4.out" });
 
                 const clickedObject = this.scene.getObjectByName(intersectObject.name);
-                gsap.to(clickedObject.position, {x: 0, y: -6, z: 0, duration: 1, ease: "power4.out"}); gsap.to(clickedObject.scale, {x: 0.8, z: 0.8, duration: 1, ease: "power4.out"});
+                gsap.to(clickedObject.position, { x: 0, y: -6, z: 0, duration: 1, ease: "power4.out" }); gsap.to(clickedObject.scale, {x: 0.8, z: 0.8, duration: 1, ease: "power4.out"});
                 
                 const filteredStacks = this.optionStacks.filter(stack => stack !== clickedObject);
                 
@@ -133,7 +135,7 @@ class App {
                 filteredStacks.forEach((stack, index) => {
                     gsap.to(stack.position, { x: stackPositions[index], y: -12, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
                     gsap.to(stack.scale, { x: 0.5, z: 0.5, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
-                })
+                });
         }
     }
 
