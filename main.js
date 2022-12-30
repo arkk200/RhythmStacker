@@ -3,6 +3,7 @@ import './style.css';
 import gsap from 'gsap';
 import * as THREE from 'three';
 import { createOptionStack, getStack } from './src/utils/utils.js';
+import musicList from './dummyData/musicList.json';
 
 class App {
     constructor() {
