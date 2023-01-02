@@ -65,7 +65,7 @@ class App {
         this.stackToGoEditor = createOptionStack("green", { name: "Editor", step: 2 }, [3, -24, -5]);
         this.scene.add(this.stackToGoEditor);
 
-        this.stackForBack = getStack({ side: 1, height: 1 }, { color: "white", attribute: { name: "Back" } }, [0, 8, 2])
+        this.stackForBack = getStack({ side: 1, height: 1 }, { color: "white", attribute: { name: "Back" } }, [-2, 7, 4])
         this.scene.add(this.stackForBack);
 
         this.optionStacks = [
@@ -109,8 +109,9 @@ class App {
 
         switch (this.step) { // Move a Camera and Stacks
             case 0:
-                gsap.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 });
-                gsap.to(this.stackForStart.scale, { x:1, z:1, duration: 1, ease: "power4.out", delay: 0.5 });
+                this.tl = gsap.timeline();
+                this.tl.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 });
+                this.tl.to(this.stackForStart.scale, { x:1, z:1, duration: 1, ease: "power4.out", delay: 0.5 }, "<-0.5");
                 
                 this.optionStacks.forEach((stack, index) => {
                     gsap.to(stack.position, { y: -24, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
@@ -119,7 +120,12 @@ class App {
                 break;
 
             case 1:
-                if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
+                if (this?.group) {
+                    this.tl = gsap.timeline();
+                    this.tl.to(this.group.position, { x: 1, duration: 1.2, ease: "power4.out" });
+                    this.tl.to({}, { onUpdate: () => { this.scene.remove(this.group) } });
+                }
+                if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1.1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                 else gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
                 gsap.to(this.stackForStart.position, {x: -5, z: -5, y: -20, duration: 1, ease: "power4.out"}); gsap.to(this.stackForStart.scale, {x:0.5, z:0.5, duration: 1, ease: "power4.out"});
 
@@ -132,6 +138,11 @@ class App {
 
             case 2:
                 if (intersectObject.name === "Editor") {
+                    if (this?.group) {
+                        this.tl = gsap.timeline();
+                        this.tl.to(this.group.position, { x: 1, duration: 1.2, ease: "power4.out" });
+                        this.tl.to({}, { onUpdate: () => { this.scene.remove(this.group) } });
+                    }
                     this.tl = gsap.timeline();
 
                     if (this.prevStep === 2 && this.prevPageName !== "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "poewr4.out" });
