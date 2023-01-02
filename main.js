@@ -4,7 +4,7 @@ import gsap from 'gsap';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { createOptionStack, getStack } from './src/utils/utils.js';
-import musicList from './dummyData/musicList.json';
+import musicListJSON from './dummyData/musicList.json';
 
 class App {
     constructor() {
@@ -35,6 +35,7 @@ class App {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.querySelector('#app').appendChild(this.renderer.domElement);
+        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     }
 
     setLights() {
@@ -52,14 +53,14 @@ class App {
         this.stackForStart = getStack({ side: 5, height: 40 }, { color: "white", attribute: { name: "Option", step: 1 } }, [0, -24, 0])
         this.scene.add(this.stackForStart);
 
-        this.stackToGoFamousSongs = createOptionStack("red", { name: "FamousSongs", step: 2 }, [-5, -24, 3]);
-        this.scene.add(this.stackToGoFamousSongs);
+        this.stackToGoFamousMusics = createOptionStack("red", { name: "FamousMusics", step: 2 }, [-5, -24, 3]);
+        this.scene.add(this.stackToGoFamousMusics);
 
-        this.stackToGoFavoriteSongs = createOptionStack("orange", { name: "FavoriteSongs", step: 2 }, [1, -24, 4]);
-        this.scene.add(this.stackToGoFavoriteSongs);
+        this.stackToGoFavoriteMusics = createOptionStack("orange", { name: "FavoriteMusics", step: 2 }, [1, -24, 4]);
+        this.scene.add(this.stackToGoFavoriteMusics);
 
-        this.stackToGoAllSongs = createOptionStack("yellow", { name: "AllSongs", step: 2 }, [4, -24, 1]);
-        this.scene.add(this.stackToGoAllSongs);
+        this.stackToGoAllMusics = createOptionStack("yellow", { name: "AllMusics", step: 2 }, [4, -24, 1]);
+        this.scene.add(this.stackToGoAllMusics);
 
         this.stackToGoEditor = createOptionStack("green", { name: "Editor", step: 2 }, [3, -24, -5]);
         this.scene.add(this.stackToGoEditor);
@@ -68,16 +69,17 @@ class App {
         this.scene.add(this.stackForBack);
 
         this.optionStacks = [
-            this.stackToGoFamousSongs,
-            this.stackToGoFavoriteSongs,
-            this.stackToGoAllSongs,
+            this.stackToGoFamousMusics,
+            this.stackToGoFavoriteMusics,
+            this.stackToGoAllMusics,
             this.stackToGoEditor
-        ]
+        ];
     }
 
     setEvents() {
         window.addEventListener("resize", this.onResize.bind(this));
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
+        window.addEventListener("wheel", this.onScroll.bind(this));
     }
     onResize() {
         this.camera.left = window.innerWidth / -128;
@@ -105,7 +107,7 @@ class App {
 
         let stackPositions;
 
-        switch (this.step) {
+        switch (this.step) { // Move a Camera and Stacks
             case 0:
                 gsap.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 });
                 gsap.to(this.stackForStart.scale, { x:1, z:1, duration: 1, ease: "power4.out", delay: 0.5 });
@@ -117,13 +119,14 @@ class App {
                 break;
 
             case 1:
-                gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
+                if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
+                else gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
                 gsap.to(this.stackForStart.position, {x: -5, z: -5, y: -20, duration: 1, ease: "power4.out"}); gsap.to(this.stackForStart.scale, {x:0.5, z:0.5, duration: 1, ease: "power4.out"});
 
                 stackPositions = [-5, 1, 4, 3];
                 this.optionStacks.forEach((stack, index) => {
-                    gsap.to(stack.position, { x: stackPositions[index], y: -10, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 + 0.15});
-                    gsap.to(stack.scale, { x: 0.6, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 + 0.2});
+                    gsap.to(stack.position, { x: stackPositions[index], y: -10, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
+                    gsap.to(stack.scale, { x: 0.6, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                 });
                 break;
 
@@ -154,24 +157,40 @@ class App {
                         gsap.to(stack.scale, { x: 0.5, z: 0.5, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                     });
                 }
-                gsap.to(this.stackForStart.position, {y: -35, duration: 1.2, ease: "power4.out"});
-                this.showPage(intersectObject.name);
+                gsap.to(this.stackForStart.position, {y: -40, duration: 1.6, ease: "power4.out"});
+                this.showPage.bind(this)(intersectObject.name);
         }
         this.prevStep = intersectObject.step;
         this.prevPageName = intersectObject.name;
-        console.log(this.prevStep);
     }
     showPage(optionStackName) {
+        this?.group && this.scene.remove(this.group);
         switch(optionStackName) {
-            case "FamousSongs":
+            case "FamousMusics":
                 break;
-            case "FavoriteSongs":
+            case "FavoriteMusics":
                 break;
-            case "AllSongs":
+            case "AllMusics":
+                const musicList = musicListJSON.musicList;
+                this.group = new THREE.Group();
+                musicList.forEach((music, index) => {
+                    const mesh = new THREE.Mesh(
+                        new THREE.BoxGeometry(10, 4, 1),
+                        new THREE.MeshPhongMaterial({ color: new THREE.Color(`hsl(${index * 10}, 100%, 50%)`) })
+                    );
+                    mesh.position.set(12, -index * 5, -12);
+                    this.group.add(mesh);
+                });
+                this.scene.add(this.group);
                 break;
             case "Editor":
                 break;
         }
+    }
+
+    onScroll(e) {
+        const y = e.deltaY;
+        this.group.position.y += y * 0.025;
     }
 
     animate() {
