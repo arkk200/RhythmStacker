@@ -1,3 +1,4 @@
+import './init.css';
 import './style.css';
 
 import gsap from 'gsap';
@@ -149,8 +150,8 @@ class App {
                     this.tl.to(this.camera.position, { x: 0, y: 0, z: 32, duration: 1, ease: "power3.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
 
                     this.optionStacks.forEach((stack, index) => {
-                        gsap.to(stack.position, {x: index*2 - 13, y: 0, z: 0, duration: 1.2, delay: index*0.05, ease: "power1.inOut"});
-                        gsap.to(stack.scale, { x: 0.4, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power1.inOut"});
+                        gsap.to(stack.position, {x: index*2 - 13, y: 0, z: 0, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
+                        gsap.to(stack.scale, { x: 0.4, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
                 } else {
                     this?.group && this.scene.remove(this.group);
