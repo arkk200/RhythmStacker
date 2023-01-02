@@ -142,6 +142,7 @@ class App {
                         gsap.to(stack.scale, { x: 0.4, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power1.inOut"});
                     })
                 } else {
+                    this?.group && this.scene.remove(this.group);
                     this.tl = gsap.timeline();
                     if (this.prevPageName === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                     this.tl.to(this.camera.position, { x: 38, y: 32, z: 26, duration: 1.2, ease: "power3.inOut" });
@@ -164,28 +165,38 @@ class App {
         this.prevPageName = intersectObject.name;
     }
     showPage(optionStackName) {
-        this?.group && this.scene.remove(this.group);
         switch(optionStackName) {
             case "FamousMusics":
+                this.createMusicsGroup.bind(this)(musicListJSON);
                 break;
             case "FavoriteMusics":
+                this.createMusicsGroup.bind(this)(musicListJSON);
                 break;
             case "AllMusics":
-                const musicList = musicListJSON.musicList;
-                this.group = new THREE.Group();
-                musicList.forEach((music, index) => {
-                    const mesh = new THREE.Mesh(
-                        new THREE.BoxGeometry(10, 4, 1),
-                        new THREE.MeshPhongMaterial({ color: new THREE.Color(`hsl(${index * 10}, 100%, 50%)`) })
-                    );
-                    mesh.position.set(12, -index * 5, -12);
-                    this.group.add(mesh);
-                });
-                this.scene.add(this.group);
+                this.createMusicsGroup.bind(this)(musicListJSON);
                 break;
             case "Editor":
                 break;
         }
+    }
+    createMusicsGroup(json) {
+        const musicList = json.musicList;
+        this.group = new THREE.Group();
+        musicList.forEach((music, index) => {
+            const mesh = new THREE.Mesh(
+                new THREE.BoxGeometry(10, 4, 1),
+                new THREE.MeshPhongMaterial({ color: new THREE.Color(`hsl(${index * 10}, 100%, 50%)`) })
+            );
+            mesh.position.set(27, -index * 5, -12);
+            this.group.add(mesh);
+        });
+        this.group.position.set(0, 0, 0);
+        this.scene.add(this.group);
+        this.tl.to({}, { onUpdate: () => {
+            this.group.children.forEach((mesh, index) => {
+                gsap.to(mesh.position, { x: 14, duration: 1.4, delay: index*0.1 + 0.5, ease: "power4.out" });
+            });
+        }}, ">-1.2");
     }
 
     onScroll(e) {
