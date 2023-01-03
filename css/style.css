@@ -1,0 +1,76 @@
+canvas {
+  position: absolute;
+  z-index: -1;
+}
+
+.ui {
+  width: 100vw;
+  height: 100vh;
+}
+.ui .document {
+  width: inherit;
+  height: inherit;
+  display: flex;
+  row-gap: 3rem;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  color: #fff;
+}
+.ui .document .map-info {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.25rem;
+  font-size: 2rem;
+}
+.ui .document .map-info .map-info__inputs {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.25rem;
+  font-size: 2rem;
+}
+.ui .document .map-info .map-info__inputs .input {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.75rem;
+}
+.ui .document .map-info .map-info__inputs .input label {
+  border-top: 3px solid white;
+  border-right: 3px solid white;
+  text-decoration: underline white;
+}
+.ui .document .map-info .map-info__inputs .input input {
+  box-sizing: border-box;
+  outline: none;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  color: white;
+  padding: 0.25rem;
+  font-size: 1.5rem;
+}
+.ui .document .map-info .map-info__inputs .input input[type=text] {
+  border-bottom: 3px solid white;
+  border-left: 3px solid white;
+  padding: 0.1rem;
+}
+.ui .document .map-info .map-info__inputs .input input[type=text].link-input {
+  text-decoration: underline rgb(118, 118, 118);
+}
+.ui .document .map-info .map-info__inputs .input input[type=button] {
+  border: 3px solid white;
+}
+.ui .document .map-info iframe {
+  background-color: gray;
+  border: 3px solid white;
+}
+.ui .document input[type=submit] {
+  box-sizing: border-box;
+  outline: none;
+  background-color: rgba(0, 0, 0, 0);
+  color: white;
+  padding: 0.25rem;
+  font-size: 1.5rem;
+  border: 3px solid white;
+}
+
+/*# sourceMappingURL=style.css.map */

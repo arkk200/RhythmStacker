@@ -9,10 +9,40 @@
   </head>
   <body>
     <div id="app"></div>
-    <div id="ui">
-      <div>HELLO UI</div>
+    <div class="ui">
+      <form class="document">
+        <div class="map-info">
+          <div class="map-info__inputs">
+            <div class="input">
+              <label for="title">Title</label>
+              <input type="text" id="title" class="title-input" placeholder="Enter the title" />
+            </div>
+            <div class="input">
+              <label for="artist">Artist</label>
+              <input type="text" id="artist" class="artist-input" placeholder="Enter the artist" />
+            </div>
+            <div id="url-form" class="input">
+              <label for="link" class="link-label">Youtube Music Link</label>
+              <input type="text" id="link" class="link-input" placeholder="Enter the link" />
+              <input type="button" class="url-button" value="import" />
+            </div>
+            <div class="input">
+              <label for="bpm">BPM</label>
+              <input type="text" id="bpm" class="bpm-input" placeholder="Enter the bpm" />
+            </div>
+          </div>
+          <iframe
+            width="448"
+            height="252"
+            frameborder="0"
+            allow="autoplay;encrypted-media"
+            allowfullscreen>
+          </iframe>
+        </div>
+        <!-- <input type="submit" value="upload" /> -->
+      </form>
     </div>
-    <script type="module" src="/main.js"></script>
+    <script type="module" src="/main.js" defer></script>
     <script src="ui.js"></script>
   </body>
 </html>

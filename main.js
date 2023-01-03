@@ -1,5 +1,5 @@
 import './init.css';
-import './style.css';
+import './css/style.css';
 
 import gsap from 'gsap';
 import * as THREE from 'three';
