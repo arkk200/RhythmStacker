@@ -13,7 +13,7 @@ class App {
 
         this.setInitialSettings.bind(this)();
         this.setLights.bind(this)();
-        this.setObjects.bind(this)();
+        this.setMainObjects.bind(this)();
         this.setEvents.bind(this)();
 
         this.animate.bind(this)();
@@ -50,7 +50,7 @@ class App {
         this.scene.add(this.light);
     }
     
-    setObjects() {
+    setMainObjects() {
         this.stackForStart = getStack({ side: 5, height: 40 }, { color: "white", attribute: { name: "Option", step: 1 } }, [0, -24, 0])
         this.scene.add(this.stackForStart);
 
@@ -75,6 +75,14 @@ class App {
             this.stackToGoAllMusics,
             this.stackToGoEditor
         ];
+    }
+
+    setEditorObjects() {
+        this.editorObjectsGroup = new THREE.Group();
+        const baseStack = getStack({ side: 3, height: 1 }, { color: "red" }, [0, -6, 0]);
+        this.editorObjectsGroup.add(baseStack);
+
+        this.scene.add(this.editorObjectsGroup);
     }
 
     setEvents() {
@@ -108,7 +116,7 @@ class App {
 
         let stackPositions;
 
-        switch (this.step) { // Move a Camera and Stacks
+        switch (/* this.step */2) { // Move a Camera and Stacks
             case 0:
                 this.tl = gsap.timeline();
                 this.tl.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 });
@@ -121,10 +129,10 @@ class App {
                 break;
 
             case 1:
-                if (this?.group) {
+                if (this?.musicObjectsGroup) {
                     this.tl = gsap.timeline();
-                    this.tl.to(this.group.position, { x: 1, duration: 1.2, ease: "power4.out" });
-                    this.tl.to({}, { onUpdate: () => { this.scene.remove(this.group) } });
+                    this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1.2, ease: "power4.out" });
+                    this.tl.to({}, { onUpdate: () => { this.scene.remove(this.musicObjectsGroup) } });
                 }
                 if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1.1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                 else gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
@@ -133,16 +141,16 @@ class App {
                 stackPositions = [-5, 1, 4, 3];
                 this.optionStacks.forEach((stack, index) => {
                     gsap.to(stack.position, { x: stackPositions[index], y: -10, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
-                    gsap.to(stack.scale, { x: 0.6, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
+                    gsap.to(stack.scale, { x: 0.6, y: 1, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                 });
                 break;
 
             case 2:
-                if (intersectObject.name === "Editor") {
-                    if (this?.group) {
+                if (/* intersectObject.name === "Editor" */true) {
+                    if (this?.musicObjectsGroup) {
                         this.tl = gsap.timeline();
-                        this.tl.to(this.group.position, { x: 1, duration: 1.2, ease: "power4.out" });
-                        this.tl.to({}, { onUpdate: () => { this.scene.remove(this.group) } });
+                        this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1, ease: "power4.out" });
+                        this.tl.to({}, { onUpdate: () => { this.scene.remove(this.musicObjectsGroup) } });
                     }
                     this.tl = gsap.timeline();
 
@@ -150,24 +158,24 @@ class App {
                     this.tl.to(this.camera.position, { x: 0, y: 0, z: 32, duration: 1, ease: "power3.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
 
                     this.optionStacks.forEach((stack, index) => {
-                        gsap.to(stack.position, {x: index*2 - 13, y: 0, z: 0, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
-                        gsap.to(stack.scale, { x: 0.4, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
+                        gsap.to(stack.position, {x: index*2 - 14, y: 8, z: 0, duration: 1.2, delay: index*0.05, ease: "power2.inOut"});
+                        gsap.to(stack.scale, { x: 0.4, y: 0.3, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
                 } else {
-                    this?.group && this.scene.remove(this.group);
+                    this?.musicObjectsGroup && this.scene.remove(this.musicObjectsGroup);
                     this.tl = gsap.timeline();
                     if (this.prevPageName === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                     this.tl.to(this.camera.position, { x: 38, y: 32, z: 26, duration: 1.2, ease: "power3.inOut" });
                     
                     gsap.to(intersectObject.position, { x: 0, y: -6, z: 0, duration: 1, ease: "power4.out" });
-                    gsap.to(intersectObject.scale, {x: 0.8, z: 0.8, duration: 1, ease: "power4.out"});
+                    gsap.to(intersectObject.scale, {x: 0.8, y: 1, z: 0.8, duration: 1, ease: "power4.out"});
                     
                     const filteredStacks = this.optionStacks.filter(stack => stack !== intersectObject);
                     
                     stackPositions = [0.5, 4, 5];
                     filteredStacks.forEach((stack, index) => {
-                        gsap.to(stack.position, { x: stackPositions[index], y: -12, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
-                        gsap.to(stack.scale, { x: 0.5, z: 0.5, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
+                        gsap.to(stack.position, { x: stackPositions[index], y: -12, z: stackPositions.at(-index -1), duration: index*0.05 + 1.2, ease: "power3.out", delay: index*0.05 });
+                        gsap.to(stack.scale, { x: 0.5, y: 1, z: 0.5, duration: index*0.05 + 1.2, ease: "power3.out", delay: index*0.05});
                     });
                 }
                 gsap.to(this.stackForStart.position, {y: -40, duration: 1.6, ease: "power4.out"});
@@ -188,24 +196,25 @@ class App {
                 this.createMusicsGroup.bind(this)(musicListJSON);
                 break;
             case "Editor":
+                this.setEditorObjects.bind(this)();
                 break;
         }
     }
     createMusicsGroup(json) {
         const musicList = json.musicList;
-        this.group = new THREE.Group();
+        this.musicObjectsGroup = new THREE.Group();
         musicList.forEach((music, index) => {
             const mesh = new THREE.Mesh(
                 new THREE.BoxGeometry(10, 4, 1),
                 new THREE.MeshPhongMaterial({ color: new THREE.Color(`hsl(${index * 10}, 100%, 50%)`) })
             );
             mesh.position.set(27, -index * 5, -12);
-            this.group.add(mesh);
+            this.musicObjectsGroup.add(mesh);
         });
-        this.group.position.set(0, 0, 0);
-        this.scene.add(this.group);
+        this.musicObjectsGroup.position.set(0, 0, 0);
+        this.scene.add(this.musicObjectsGroup);
         this.tl.to({}, { onUpdate: () => {
-            this.group.children.forEach((mesh, index) => {
+            this.musicObjectsGroup.children.forEach((mesh, index) => {
                 gsap.to(mesh.position, { x: 14, duration: 1.4, delay: index*0.1 + 0.5, ease: "power4.out" });
             });
         }}, ">-1.2");
@@ -213,7 +222,7 @@ class App {
 
     onScroll(e) {
         const y = e.deltaY;
-        this.group.position.y += y * 0.025;
+        this.musicObjectsGroup.position.y += y * 0.025;
     }
 
     animate() {

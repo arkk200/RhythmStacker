@@ -8,7 +8,7 @@ export function lerp(a, b, t) {
     ];
 }
 
-export function getStack({ side=1, height=1 }, { color="white", attribute: { name="", step=null } }, position=[0, 0, 0]) {
+export function getStack({ side=1, height=1 }, { color="white", name="", step=null }, position=[0, 0, 0]) {
     const mesh = new THREE.Mesh(
         new THREE.BoxGeometry(side, height, side),
         new THREE.MeshPhongMaterial({ color })
@@ -20,7 +20,7 @@ export function getStack({ side=1, height=1 }, { color="white", attribute: { nam
 }
 
 export function createOptionStack(color, attribute, position) {
-    return getStack({ side: 4, height: 20 }, { color, attribute }, position);
+    return getStack({ side: 4, height: 20 }, { color, ...attribute }, position);
 }
 
 export class Stack {
