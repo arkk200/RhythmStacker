@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { createOptionStack, getStack } from './src/utils/utils.js';
 import musicListJSON from './dummyData/musicList.json';
+import { Editor } from './src/editor';
+import { MusicList } from './src/musicList';
 
 class App {
     constructor() {
@@ -51,22 +53,22 @@ class App {
     }
     
     setMainObjects() {
-        this.stackForStart = getStack({ side: 5, height: 40 }, { color: "white", attribute: { name: "Option", step: 1 } }, [0, -24, 0])
+        this.stackForStart = getStack({ side: 5, height: 40 }, { color: "white", name: "Option", step: 1 }, [0, -24, 0])
         this.scene.add(this.stackForStart);
 
-        this.stackToGoFamousMusics = createOptionStack("red", { name: "FamousMusics", step: 2 }, [-5, -24, 3]);
+        this.stackToGoFamousMusics = createOptionStack({ color: "red", name: "FamousMusics", step: 2 }, [-5, -24, 3]);
         this.scene.add(this.stackToGoFamousMusics);
 
-        this.stackToGoFavoriteMusics = createOptionStack("orange", { name: "FavoriteMusics", step: 2 }, [1, -24, 4]);
+        this.stackToGoFavoriteMusics = createOptionStack({ color: "orange", name: "FavoriteMusics", step: 2 }, [1, -24, 4]);
         this.scene.add(this.stackToGoFavoriteMusics);
 
-        this.stackToGoAllMusics = createOptionStack("yellow", { name: "AllMusics", step: 2 }, [4, -24, 1]);
+        this.stackToGoAllMusics = createOptionStack({ color: "yellow", name: "AllMusics", step: 2 }, [4, -24, 1]);
         this.scene.add(this.stackToGoAllMusics);
 
-        this.stackToGoEditor = createOptionStack("green", { name: "Editor", step: 2 }, [3, -24, -5]);
+        this.stackToGoEditor = createOptionStack({ color: "green", name: "Editor", step: 2 }, [3, -24, -5]);
         this.scene.add(this.stackToGoEditor);
 
-        this.stackForBack = getStack({ side: 1, height: 1 }, { color: "white", attribute: { name: "Back" } }, [-2, 7, 4])
+        this.stackForBack = getStack({ side: 1, height: 1 }, { color: "white", name: "Back" }, [-2, 7, 4])
         this.scene.add(this.stackForBack);
 
         this.optionStacks = [
@@ -75,14 +77,6 @@ class App {
             this.stackToGoAllMusics,
             this.stackToGoEditor
         ];
-    }
-
-    setEditorObjects() {
-        this.editorObjectsGroup = new THREE.Group();
-        const baseStack = getStack({ side: 3, height: 1 }, { color: "red" }, [0, -6, 0]);
-        this.editorObjectsGroup.add(baseStack);
-
-        this.scene.add(this.editorObjectsGroup);
     }
 
     setEvents() {
@@ -115,8 +109,7 @@ class App {
         }
 
         let stackPositions;
-
-        switch (/* this.step */2) { // Move a Camera and Stacks
+        switch (this.step/* 2 */) { // Move a Camera and Stacks
             case 0:
                 this.tl = gsap.timeline();
                 this.tl.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 });
@@ -146,7 +139,7 @@ class App {
                 break;
 
             case 2:
-                if (/* intersectObject.name === "Editor" */true) {
+                if (intersectObject.name === "Editor"/* true */) {
                     if (this?.musicObjectsGroup) {
                         this.tl = gsap.timeline();
                         this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1, ease: "power4.out" });
@@ -187,37 +180,18 @@ class App {
     showPage(optionStackName) {
         switch(optionStackName) {
             case "FamousMusics":
-                this.createMusicsGroup.bind(this)(musicListJSON);
+                MusicList.setObjects.bind(this)(musicListJSON);
                 break;
             case "FavoriteMusics":
-                this.createMusicsGroup.bind(this)(musicListJSON);
+                MusicList.setObjects.bind(this)(musicListJSON);
                 break;
             case "AllMusics":
-                this.createMusicsGroup.bind(this)(musicListJSON);
+                MusicList.setObjects.bind(this)(musicListJSON);
                 break;
             case "Editor":
-                this.setEditorObjects.bind(this)();
+                Editor.setObjects.bind(this)();
                 break;
         }
-    }
-    createMusicsGroup(json) {
-        const musicList = json.musicList;
-        this.musicObjectsGroup = new THREE.Group();
-        musicList.forEach((music, index) => {
-            const mesh = new THREE.Mesh(
-                new THREE.BoxGeometry(10, 4, 1),
-                new THREE.MeshPhongMaterial({ color: new THREE.Color(`hsl(${index * 10}, 100%, 50%)`) })
-            );
-            mesh.position.set(27, -index * 5, -12);
-            this.musicObjectsGroup.add(mesh);
-        });
-        this.musicObjectsGroup.position.set(0, 0, 0);
-        this.scene.add(this.musicObjectsGroup);
-        this.tl.to({}, { onUpdate: () => {
-            this.musicObjectsGroup.children.forEach((mesh, index) => {
-                gsap.to(mesh.position, { x: 14, duration: 1.4, delay: index*0.1 + 0.5, ease: "power4.out" });
-            });
-        }}, ">-1.2");
     }
 
     onScroll(e) {

@@ -19,14 +19,17 @@ export function getStack({ side=1, height=1 }, { color="white", name="", step=nu
     return mesh;
 }
 
-export function createOptionStack(color, attribute, position) {
-    return getStack({ side: 4, height: 20 }, { color, ...attribute }, position);
+export function createOptionStack(attribute, position) {
+    return getStack({ side: 4, height: 20 }, { ...attribute }, position);
 }
 
 export class Stack {
     constructor(scene, width, depth, index, posX, posZ, direction) {
         this.scene = scene;
-        this.stack = new StackMesh(width, 1, depth, new THREE.MeshPhongMaterial({ color: 'white' }));
+        this.stack = new THREE.Mesh(
+            new THREE.BoxGeometry(width, 1, depth),
+            new THREE.MeshPhongMaterial({ color: 'white' })
+        );
         this.stack.position.set(posX, index, posZ);
         this.direction = direction;
         this.scene.add(this.stack);

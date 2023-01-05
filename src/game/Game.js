@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import noteJson from '../../dummyData/music.json' assert{type: "json"};
 import { Stack, getStack } from '../utils/utils.js';
+import '../../css/game.css';
 
 export class Game {
     constructor() {
@@ -28,7 +29,7 @@ export class Game {
         this.light.target = this.obj;
         this.scene.add(this.light);
 
-        this.baseStack = getStack({ side: 3, height: 40 }, { color: "red" });
+        this.baseStack = getStack({ side: 3, height: 45 }, { color: "red" });
         this.scene.add(this.baseStack);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -52,7 +53,7 @@ export class Game {
         if(!focus) return;
         this.focus = false;
         const pausedScreen = document.querySelector('.paused-screen');
-        pausedScreen.classList.remove('hide');
+        pausedScreen.classList?.remove('hide');
         const pausedResume = pausedScreen.querySelector('.paused__resume');
         pausedResume.addEventListener('click', () => {
             this.focus = true;

@@ -1,7 +1,10 @@
 const urlBtn = document.querySelector('.url-button');
-urlBtn.addEventListener('click', getYoutubeVideo);
-
+const form = document.querySelector('.document');
 const iframe = document.querySelector('iframe');
+
+urlBtn.addEventListener('click', getYoutubeVideo);
+form.addEventListener('submit', onSubmit);
+
 
 function getYoutubeVideo() {
     let url = document.querySelector('.link-input').value;
@@ -9,5 +12,9 @@ function getYoutubeVideo() {
     const match = url.match(regExp);
     if (match && match[2].length == 11) {
         iframe.src = `https://www.youtube-nocookie.com/embed/${match[2]}`;
-    }
+    } 
+}
+
+function onSubmit(e) {
+    e.preventDefault();
 }

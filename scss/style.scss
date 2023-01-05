@@ -7,7 +7,10 @@ canvas {
     width: 100vw;
     height: 100vh;
     box-sizing: border-box;
-    // padding: 15px 90px;
+
+    button, input[type=button], input[type=submit] {
+        cursor: pointer;
+    }
 
     .document {
         width: 100%;
@@ -80,7 +83,9 @@ canvas {
             width: 100%;
             height: 100%;
             display: flex;
+            row-gap: 1.25rem;
             flex-direction: column;
+            align-items: flex-end;
             justify-content: flex-end;
             box-sizing: border-box;
             padding: 1rem;
@@ -89,7 +94,8 @@ canvas {
             .radios {
                 display: flex;
                 flex-direction: column;
-                row-gap: 1.25rem;
+                row-gap: 0.75rem;
+                width: 24rem;
 
                 .radio {
                     box-sizing: border-box;
@@ -99,20 +105,91 @@ canvas {
                     color: white;
                     padding: 0.25rem;
                     font-size: 1.5rem;
-                    max-width: 28rem;
                 }
+            }
+            .stack-bpm {
+                display: flex;
+                flex-direction: column;
+                row-gap: 0.75rem;
+                width: 24rem;
+
+                    label {
+                        border-top: 3px solid white;
+                        border-right: 3px solid white;
+                        text-decoration: underline white;
+                    }
+    
+                    input {
+                        box-sizing: border-box;
+                        outline: none;
+                        background-color: rgba(0, 0, 0, 0);
+                        border: none;
+                        color: white;
+                        padding: 0.25rem;
+                        font-size: 1.5rem;
+                        
+                        &[type=text] {
+                            border-bottom: 3px solid white;
+                            border-left: 3px solid white;
+                            padding: 0.1rem 0.3rem;
+    
+                            &.link-input {
+                                text-decoration: underline rgb(118, 118, 118);
+                            }
+                        }
+    
+                        &[type=button] {
+                            border: 3px solid white;
+                        }
+                    }
             }
         }
 
+        .submit {
+            position: relative;
+            overflow: hidden;
 
-        input[type=submit] {
-            box-sizing: border-box;
-            outline: none;
-            background-color: rgba(0, 0, 0, 0);
-            color: white;
-            padding: 0.25rem;
-            font-size: 1.5rem;
-            border: 3px solid white;
+            input[type=submit] {
+                width: 24rem;
+                outline: none;
+                background-color: rgba(0, 0, 0, 0);
+                color: white;
+                padding: 0.25rem;
+                font-size: 1.5rem;
+                box-sizing: border-box;
+                border: 3px solid white;
+            }
+        }
+        
+        .submit::after {
+            content: '';
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .submit:hover::after {
+            opacity: 1;
+            z-index: -1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: black;
+            background: linear-gradient(51deg, rgba(255,63,254,1) 0%, rgba(255,78,78,1) 25%, rgba(50,79,164,1) 50%, rgba(66,195,100,1) 75%, rgba(255,63,254,1) 100%);
+            background-size: 400% 400%;
+            animation: submit-background 15s ease infinite;
+        }
+
+        @keyframes submit-background {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
     }
 }

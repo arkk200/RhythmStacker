@@ -1,0 +1,25 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+body canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+body .hide {
+  display: none;
+}
+body .paused-screen {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+body .paused-screen .paused__popup {
+  color: white;
+}
+
+/*# sourceMappingURL=game.css.map */
