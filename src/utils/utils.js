@@ -24,13 +24,13 @@ export function createOptionStack(attribute, position) {
 }
 
 export class Stack {
-    constructor(scene, width, depth, index, posX, posZ, direction) {
+    constructor(scene, width, depth, posX, posY, posZ, direction) {
         this.scene = scene;
         this.stack = new THREE.Mesh(
             new THREE.BoxGeometry(width, 1, depth),
             new THREE.MeshPhongMaterial({ color: 'white' })
         );
-        this.stack.position.set(posX, index, posZ);
+        this.stack.position.set(posX, posY, posZ);
         this.direction = direction;
         this.scene.add(this.stack);
         return this;

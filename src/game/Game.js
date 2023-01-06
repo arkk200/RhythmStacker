@@ -65,14 +65,14 @@ export class Game {
         const { offset, notes } = noteJson;
         let basebpm;
         let prevNoteSecond = -(offset / 1000) * this.stackVelocity;
-        notes.forEach((info, i) => {
-            !!info.basebpm && (basebpm = info.basebpm);
-            !!i && (prevNoteSecond += -(60 / basebpm) * (basebpm / info.bpm) * this.stackVelocity);
+        notes.forEach((noteInfo, i) => {
+            !!noteInfo.basebpm && (basebpm = noteInfo.basebpm);
             if (i % 2 === 0) {
-                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, i, prevNoteSecond, 0, 'x'));
+                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, prevNoteSecond, i, 0, 'x'));
             } else {
-                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, i, 0, prevNoteSecond, 'z'));
+                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, 0, i, prevNoteSecond, 'z'));
             }
+            prevNoteSecond += -(60 / basebpm) * (basebpm / noteInfo.bpm) * this.stackVelocity
         });
     }
 

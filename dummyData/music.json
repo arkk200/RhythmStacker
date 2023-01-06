@@ -3,11 +3,8 @@
     "notes": [
         {
             "comment": "first stack's delay comes from stackoffset so bpm is 0",
-            "bpm": 0,
+            "bpm": 400,
             "basebpm": 400
-        },
-        {
-            "bpm": 400
         },
         {
             "bpm": 400
@@ -26,6 +23,9 @@
         },
         {
             "bpm": 100
+        },
+        {
+            "bpm": 0
         }
     ]
 }
