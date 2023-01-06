@@ -1,8 +1,11 @@
 import gsap from 'gsap';
 import * as THREE from 'three';
 
-export class MusicList {
-    static setObjects(json) {
+export class MusicListScreen {
+    constructor() {
+        this.setObjects()
+    }
+    setObjects(json) {
         const musicList = json.musicList;
         this.musicObjectsGroup = new THREE.Group();
         musicList.forEach((music, index) => {
@@ -22,7 +25,16 @@ export class MusicList {
         }}, ">-1.2");
     }
 
-    static removeObjects() {
+    setEvents() {
+        window.addEventListener("wheel", this.onScroll.bind(this));
+    }
+    
+    onScroll(e) {
+        const y = e.deltaY;
+        this.musicObjectsGroup.position.y += y * 0.025;
+    }
+
+    removeObjects() {
 
     }
 }

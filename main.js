@@ -6,52 +6,19 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { createOptionStack, getStack } from './src/utils/utils.js';
 import musicListJSON from './dummyData/musicList.json';
+import { MusicListScreen } from './src/musicList';
 import { Editor } from './src/editor';
-import { MusicList } from './src/musicList';
+import { initInstance } from './init';
 
-class App {
+class Main {
     constructor() {
         this.step = 0;
 
-        this.setInitialSettings.bind(this)();
-        this.setLights.bind(this)();
         this.setMainObjects.bind(this)();
-        this.setEvents.bind(this)();
+        this.setMainEvents.bind(this)();
 
         this.animate.bind(this)();
     }
-
-    setInitialSettings() {
-        this.scene = new THREE.Scene();
-        this.scene.color = new THREE.Color(0, 0, 0);
-        this.camera = new THREE.OrthographicCamera(
-            window.innerWidth / -128,
-            window.innerWidth / 128,
-            window.innerHeight / 128,
-            window.innerHeight / -128,
-            0.1,
-            1000
-        );
-        this.camera.position.set(32, 32, 32);
-        this.camera.lookAt(0, 0, 0);
-        
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        document.querySelector('#app').appendChild(this.renderer.domElement);
-        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    }
-
-    setLights() {
-        this.obj = new THREE.Object3D();
-        this.obj.position.set(0, 0, 0);
-        this.scene.add(this.obj);
-
-        this.light = new THREE.SpotLight(0xffffff, 1.1, 0, Math.PI / 4);
-        this.light.position.set(60, 50, 40);
-        this.light.target = this.obj;
-        this.scene.add(this.light);
-    }
-    
     setMainObjects() {
         this.stackForStart = getStack({ side: 5, height: 40 }, { color: "white", name: "Option", step: 1 }, [0, -24, 0])
         this.scene.add(this.stackForStart);
@@ -79,18 +46,8 @@ class App {
         ];
     }
 
-    setEvents() {
-        window.addEventListener("resize", this.onResize.bind(this));
+    setMainEvents() {
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
-        window.addEventListener("wheel", this.onScroll.bind(this));
-    }
-    onResize() {
-        this.camera.left = window.innerWidth / -128;
-        this.camera.right = window.innerWidth / 128;
-        this.camera.top = window.innerHeight / 128;
-        this.camera.bottom = window.innerHeight / -128;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
     onMouseDown(e) {
         if(this?.tl?.isActive()) return;
@@ -109,7 +66,7 @@ class App {
         }
 
         let stackPositions;
-        switch (this.step/* 2 */) { // Move a Camera and Stacks
+        switch (this.step) { // Move a Camera and Stacks
             case 0:
                 this.tl = gsap.timeline();
                 this.tl.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 });
@@ -139,7 +96,7 @@ class App {
                 break;
 
             case 2:
-                if (intersectObject.name === "Editor"/* true */) {
+                if (intersectObject.name === "Editor") {
                     if (this?.musicObjectsGroup) {
                         this.tl = gsap.timeline();
                         this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1, ease: "power4.out" });
@@ -178,15 +135,12 @@ class App {
         this.prevPageName = intersectObject.name;
     }
     showPage(optionStackName) {
+        Editor.removeObjects.bind(this)();
         switch(optionStackName) {
             case "FamousMusics":
-                MusicList.setObjects.bind(this)(musicListJSON);
-                break;
             case "FavoriteMusics":
-                MusicList.setObjects.bind(this)(musicListJSON);
-                break;
             case "AllMusics":
-                MusicList.setObjects.bind(this)(musicListJSON);
+                // MusicListScreen.setObjects.bind(this)(musicListJSON);
                 break;
             case "Editor":
                 Editor.setObjects.bind(this)();
@@ -194,17 +148,12 @@ class App {
         }
     }
 
-    onScroll(e) {
-        const y = e.deltaY;
-        this.musicObjectsGroup.position.y += y * 0.025;
-    }
-
     animate() {
-        this.reqAnimate = window.requestAnimationFrame(this.animate.bind(this));
+        window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
     }
 }
 
 window.onload = () => {
-    new App();
+    new Main();
 }
