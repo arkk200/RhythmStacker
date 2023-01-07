@@ -3,21 +3,20 @@ import './css/style.css';
 
 import gsap from 'gsap';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { createOptionStack, getStack } from './src/utils/utils.js';
 import musicListJSON from './dummyData/musicList.json';
-import { MusicListScreen } from './src/musicList';
+import { MusicList } from './src/musicList';
 import { Editor } from './src/editor';
-import { initInstance } from './init';
+import { Init } from './init';
 
-class Main {
+export class Main extends Init {
     constructor() {
+        super();
         this.step = 0;
 
         this.setMainObjects.bind(this)();
+        this.setPages.bind(this)();
         this.setMainEvents.bind(this)();
-
-        this.animate.bind(this)();
     }
     setMainObjects() {
         this.stackForStart = getStack({ side: 5, height: 40 }, { color: "white", name: "Option", step: 1 }, [0, -24, 0])
@@ -46,18 +45,27 @@ class Main {
         ];
     }
 
+    setPages() {
+        this.editor = new Editor();
+        this.musicList = new MusicList();
+    }
+
     setMainEvents() {
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
     }
-    onMouseDown(e) {
-        if(this?.tl?.isActive()) return;
+    getIntersetObj(e) {
         const mousePos = {
             x: (e.clientX / window.innerWidth) * 2 - 1,
             y: -(e.clientY / window.innerHeight) * 2 + 1
         };
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mousePos, this.camera);
-        const intersectObject = raycaster.intersectObjects(this.scene.children)[0]?.object;
+        return raycaster.intersectObjects(this.scene.children)[0]?.object;
+    }
+    onMouseDown(e) {
+        if(this?.tl?.isActive()) return;
+        const intersectObject = this.getIntersetObj.bind(this)(e);
+
         if(!intersectObject) return;
         if (intersectObject.name === "Back" && this.step > 0) {
             this.step--;
@@ -76,6 +84,8 @@ class Main {
                     gsap.to(stack.position, { y: -24, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
                     gsap.to(stack.scale, { x: 1, z: 1, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
                 });
+                this.prevStep = intersectObject.step;
+                this.prevPageName = intersectObject.name;
                 break;
 
             case 1:
@@ -83,8 +93,9 @@ class Main {
                     this.tl = gsap.timeline();
                     this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1.2, ease: "power4.out" });
                     this.tl.to({}, { onUpdate: () => { this.scene.remove(this.musicObjectsGroup) } });
+                    this.musicObjectsGroup = null;
                 }
-                if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1.1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
+                if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                 else gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
                 gsap.to(this.stackForStart.position, {x: -5, z: -5, y: -20, duration: 1, ease: "power4.out"}); gsap.to(this.stackForStart.scale, {x:0.5, z:0.5, duration: 1, ease: "power4.out"});
 
@@ -93,6 +104,8 @@ class Main {
                     gsap.to(stack.position, { x: stackPositions[index], y: -10, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                     gsap.to(stack.scale, { x: 0.6, y: 1, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                 });
+                this.prevStep = intersectObject.step;
+                this.prevPageName = intersectObject.name;
                 break;
 
             case 2:
@@ -112,7 +125,10 @@ class Main {
                         gsap.to(stack.scale, { x: 0.4, y: 0.3, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
                 } else {
-                    this?.musicObjectsGroup && this.scene.remove(this.musicObjectsGroup);
+                    if(this?.musicObjectsGroup) {
+                        this.scene.remove(this.musicObjectsGroup);
+                        this.musicObjectsGroup = null;
+                    }
                     this.tl = gsap.timeline();
                     if (this.prevPageName === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                     this.tl.to(this.camera.position, { x: 38, y: 32, z: 26, duration: 1.2, ease: "power3.inOut" });
@@ -129,28 +145,23 @@ class Main {
                     });
                 }
                 gsap.to(this.stackForStart.position, {y: -40, duration: 1.6, ease: "power4.out"});
-                this.showPage.bind(this)(intersectObject.name);
+                this.prevStep = intersectObject.step;
+                this.prevPageName = intersectObject.name;
         }
-        this.prevStep = intersectObject.step;
-        this.prevPageName = intersectObject.name;
+        this.intersectTrigger.bind(this)(intersectObject.name);
     }
-    showPage(optionStackName) {
-        Editor.removeObjects.bind(this)();
+    intersectTrigger(optionStackName) {
+        if(this.prevPageName !== "Editor") this.editor.removeObjects.bind(this)();
         switch(optionStackName) {
             case "FamousMusics":
             case "FavoriteMusics":
             case "AllMusics":
-                // MusicListScreen.setObjects.bind(this)(musicListJSON);
+                this.musicList.setObjects.bind(this)(musicListJSON);
                 break;
             case "Editor":
-                Editor.setObjects.bind(this)();
+                this.editor.setObjects.bind(this)();
                 break;
         }
-    }
-
-    animate() {
-        window.requestAnimationFrame(this.animate.bind(this));
-        this.renderer.render(this.scene, this.camera);
     }
 }
 

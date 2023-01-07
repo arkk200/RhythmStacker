@@ -12,6 +12,7 @@ export function getStack({ side=1, height=1 }, { color="white", name="", step=nu
     const mesh = new THREE.Mesh(
         new THREE.BoxGeometry(side, height, side),
         new THREE.MeshPhongMaterial({ color })
+        // new THREE.MeshBasicMaterial({ color })
     );
     mesh.name = name;
     mesh.step = step;

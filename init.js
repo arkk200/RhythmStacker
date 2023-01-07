@@ -1,12 +1,15 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class Init {
     constructor() {
         this.setInitialSettings.bind(this)();
         this.setLights.bind(this)();
         this.setEvents.bind(this)();
+
+        this.animate.bind(this)();
     }
-    
+
     setInitialSettings() {
         this.scene = new THREE.Scene();
         this.scene.color = new THREE.Color(0, 0, 0);
@@ -24,17 +27,16 @@ export class Init {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.querySelector('#app').appendChild(this.renderer.domElement);
-        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     }
 
     setLights() {
-        this.obj = new THREE.Object3D();
-        this.obj.position.set(0, 0, 0);
-        this.scene.add(this.obj);
+        this.lightTarget = new THREE.Object3D();
+        this.lightTarget.position.set(0, 0, 0);
 
         this.light = new THREE.SpotLight(0xffffff, 1.1, 0, Math.PI / 4);
         this.light.position.set(60, 50, 40);
-        this.light.target = this.obj;
+        this.light.target = this.lightTarget;
         this.scene.add(this.light);
     }
 
@@ -48,6 +50,11 @@ export class Init {
         this.camera.bottom = window.innerHeight / -128;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    animate() {
+        window.requestAnimationFrame(this.animate.bind(this));
+        this.renderer.render(this.scene, this.camera);
     }
 }
 

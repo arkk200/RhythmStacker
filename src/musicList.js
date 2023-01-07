@@ -1,10 +1,7 @@
 import gsap from 'gsap';
 import * as THREE from 'three';
 
-export class MusicListScreen {
-    constructor() {
-        this.setObjects()
-    }
+export class MusicList {
     setObjects(json) {
         const musicList = json.musicList;
         this.musicObjectsGroup = new THREE.Group();
@@ -23,6 +20,7 @@ export class MusicListScreen {
                 gsap.to(mesh.position, { x: 14, duration: 1.4, delay: index*0.1 + 0.5, ease: "power4.out" });
             });
         }}, ">-1.2");
+        this.setEvents.bind(this)();
     }
 
     setEvents() {
