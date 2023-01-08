@@ -2,6 +2,12 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class Init {
+    scene!: THREE.Scene;
+    camera!: THREE.OrthographicCamera;
+    renderer!: THREE.WebGLRenderer;
+    controls!: OrbitControls;
+    lightTarget!: THREE.Object3D<THREE.Event>;
+    light!: THREE.SpotLight;
     constructor() {
         this.setInitialSettings.bind(this)();
         this.setLights.bind(this)();
@@ -12,7 +18,7 @@ export class Init {
 
     setInitialSettings() {
         this.scene = new THREE.Scene();
-        this.scene.color = new THREE.Color(0, 0, 0);
+        this.scene.background = new THREE.Color(0, 0, 0);
         this.camera = new THREE.OrthographicCamera(
             window.innerWidth / -128,
             window.innerWidth / 128,
@@ -26,7 +32,7 @@ export class Init {
         
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        document.querySelector('#app').appendChild(this.renderer.domElement);
+        document.querySelector('#app')!.appendChild(this.renderer.domElement);
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     }
 

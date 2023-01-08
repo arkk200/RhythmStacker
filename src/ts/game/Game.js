@@ -68,9 +68,9 @@ export class Game {
         notes.forEach((noteInfo, i) => {
             !!noteInfo.basebpm && (basebpm = noteInfo.basebpm);
             if (i % 2 === 0) {
-                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, prevNoteSecond, i, 0, 'x'));
+                this.stacks.push(new Stack(this.scene, { width: this.stackSize, depth: this.stackSize}, [prevNoteSecond, i, 0], 'x'));
             } else {
-                this.stacks.push(new Stack(this.scene, this.stackSize, this.stackSize, 0, i, prevNoteSecond, 'z'));
+                this.stacks.push(new Stack(this.scene, { width: this.stackSize, depth: this.stackSize}, [0, i, prevNoteSecond], 'z'));
             }
             prevNoteSecond += -(60 / basebpm) * (basebpm / noteInfo.bpm) * this.stackVelocity
         });

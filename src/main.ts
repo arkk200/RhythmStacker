@@ -3,13 +3,31 @@ import './css/style.css';
 
 import gsap from 'gsap';
 import * as THREE from 'three';
-import { createOptionStack, getStack } from './src/utils/utils.js';
-import musicListJSON from './dummyData/musicList.json';
-import { MusicList } from './src/musicList';
-import { Editor } from './src/editor';
-import { Init } from './init';
 
+import { Init } from './init';
+import { Editor } from './ts/editor';
+import { MusicList } from './ts/musicList';
+import { createOptionStack, getStack } from './ts/utils';
+import { SteppedObject, VectorArray } from './type';
+import musicListJSON from '../dummyData/musicList.json';
+
+// export class Main extends
 export class Main extends Init {
+    step: number;
+    stackForStart: THREE.Mesh;
+    stackToGoFamousMusics: THREE.Mesh;
+    stackToGoFavoriteMusics: THREE.Mesh;
+    stackToGoAllMusics: THREE.Mesh;
+    stackToGoEditor: THREE.Mesh;
+    stackForBack: THREE.Mesh;
+    editor: Editor;
+    musicList: MusicList;
+    prevStep?: number;
+    prevPageName: string;
+    musicObjectsGroup!: THREE.Group;
+    optionStacks: THREE.Mesh[];
+    tl: GSAPTimeline;
+
     constructor() {
         super();
         this.step = 0;
@@ -53,7 +71,7 @@ export class Main extends Init {
     setMainEvents() {
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
     }
-    getIntersetObj(e) {
+    getIntersetObj(e: MouseEvent) {
         const mousePos = {
             x: (e.clientX / window.innerWidth) * 2 - 1,
             y: -(e.clientY / window.innerHeight) * 2 + 1
@@ -62,18 +80,18 @@ export class Main extends Init {
         raycaster.setFromCamera(mousePos, this.camera);
         return raycaster.intersectObjects(this.scene.children)[0]?.object;
     }
-    onMouseDown(e) {
+    onMouseDown(e: MouseEvent) {
         if(this?.tl?.isActive()) return;
-        const intersectObject = this.getIntersetObj.bind(this)(e);
+        const intersectObject: SteppedObject = this.getIntersetObj.bind(this)(e);
 
         if(!intersectObject) return;
         if (intersectObject.name === "Back" && this.step > 0) {
             this.step--;
-        } else {
+        } else if (intersectObject?.step) {
             this.step = intersectObject.step;
         }
 
-        let stackPositions;
+        let stackPositionsToMove: [number, number, number, number] | VectorArray;
         switch (this.step) { // Move a Camera and Stacks
             case 0:
                 this.tl = gsap.timeline();
@@ -89,19 +107,18 @@ export class Main extends Init {
                 break;
 
             case 1:
-                if (this?.musicObjectsGroup) {
+                if (this.scene.getObjectByName("musicObjectsGroup")) {
                     this.tl = gsap.timeline();
                     this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1.2, ease: "power4.out" });
                     this.tl.to({}, { onUpdate: () => { this.scene.remove(this.musicObjectsGroup) } });
-                    this.musicObjectsGroup = null;
                 }
                 if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                 else gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
                 gsap.to(this.stackForStart.position, {x: -5, z: -5, y: -20, duration: 1, ease: "power4.out"}); gsap.to(this.stackForStart.scale, {x:0.5, z:0.5, duration: 1, ease: "power4.out"});
 
-                stackPositions = [-5, 1, 4, 3];
+                stackPositionsToMove = [-5, 1, 4, 3];
                 this.optionStacks.forEach((stack, index) => {
-                    gsap.to(stack.position, { x: stackPositions[index], y: -10, z: stackPositions.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
+                    gsap.to(stack.position, { x: stackPositionsToMove[index], y: -10, z: stackPositionsToMove.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                     gsap.to(stack.scale, { x: 0.6, y: 1, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                 });
                 this.prevStep = intersectObject.step;
@@ -125,9 +142,8 @@ export class Main extends Init {
                         gsap.to(stack.scale, { x: 0.4, y: 0.3, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
                 } else {
-                    if(this?.musicObjectsGroup) {
+                    if(this.scene.getObjectByName("musicObjectsGroup")) {
                         this.scene.remove(this.musicObjectsGroup);
-                        this.musicObjectsGroup = null;
                     }
                     this.tl = gsap.timeline();
                     if (this.prevPageName === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
@@ -138,9 +154,9 @@ export class Main extends Init {
                     
                     const filteredStacks = this.optionStacks.filter(stack => stack !== intersectObject);
                     
-                    stackPositions = [0.5, 4, 5];
+                    stackPositionsToMove = [0.5, 4, 5];
                     filteredStacks.forEach((stack, index) => {
-                        gsap.to(stack.position, { x: stackPositions[index], y: -12, z: stackPositions.at(-index -1), duration: index*0.05 + 1.2, ease: "power3.out", delay: index*0.05 });
+                        gsap.to(stack.position, { x: stackPositionsToMove[index], y: -12, z: stackPositionsToMove.at(-index -1), duration: index*0.05 + 1.2, ease: "power3.out", delay: index*0.05 });
                         gsap.to(stack.scale, { x: 0.5, y: 1, z: 0.5, duration: index*0.05 + 1.2, ease: "power3.out", delay: index*0.05});
                     });
                 }
@@ -150,7 +166,7 @@ export class Main extends Init {
         }
         this.intersectTrigger.bind(this)(intersectObject.name);
     }
-    intersectTrigger(optionStackName) {
+    intersectTrigger(optionStackName: string) {
         if(this.prevPageName !== "Editor") this.editor.removeObjects.bind(this)();
         switch(optionStackName) {
             case "FamousMusics":

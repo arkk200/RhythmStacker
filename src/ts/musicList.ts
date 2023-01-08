@@ -2,9 +2,14 @@ import gsap from 'gsap';
 import * as THREE from 'three';
 
 export class MusicList {
-    setObjects(json) {
+    musicObjectsGroup: THREE.Group;
+    scene: THREE.Scene;
+    tl: GSAPTimeline;
+    setObjects(json: { musicList: { title: string; artist: string; }[]; }) {
         const musicList = json.musicList;
         this.musicObjectsGroup = new THREE.Group();
+        this.musicObjectsGroup.name = "musicObjectsGroup";
+
         musicList.forEach((music, index) => {
             const mesh = new THREE.Mesh(
                 new THREE.BoxGeometry(10, 4, 1),
@@ -27,7 +32,7 @@ export class MusicList {
         window.addEventListener("wheel", this.onScroll.bind(this));
     }
     
-    onScroll(e) {
+    onScroll(e: WheelEvent) {
         const y = e.deltaY;
         this.musicObjectsGroup.position.y += y * 0.025;
     }

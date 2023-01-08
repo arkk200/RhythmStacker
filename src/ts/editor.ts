@@ -1,8 +1,11 @@
-import gsap from 'gsap';
 import * as THREE from 'three';
-import { getStack } from './utils/utils';
+import { getStack } from './utils';
 
 export class Editor {
+    editorObjectsGroup: THREE.Group;
+    baseStack: THREE.Mesh;
+    scene: THREE.Scene;
+    tl: GSAPTimeline;
     setObjects() {
         console.log('Set Editor Obj');
         this.editorObjectsGroup = new THREE.Group();
@@ -21,10 +24,7 @@ export class Editor {
 
     removeObjects() {
         if(!this.scene.getObjectByName("editorObjectGroup")) return; // editorObjectGroup이 존재하지 않으면 return
-        this.tl.to(this.editorObjectsGroup.position, { y: -8, duration: 1, ease: "power4.out" });
-        this.tl.to({}, { onUpdate: () => {
-            this.editorObjectsGroup.remove(this.baseStack);
-            this.scene.remove(this.editorObjectsGroup);
-        }});
+        this.editorObjectsGroup.remove(this.baseStack);
+        this.scene.remove(this.editorObjectsGroup);
     }
 }
