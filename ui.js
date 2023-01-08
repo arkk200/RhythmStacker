@@ -1,10 +1,9 @@
-const urlBtn = document.querySelector('.url-button');
+const getYTVideoBtn = document.querySelector('.url-button');
 const form = document.querySelector('.document');
 const iframe = document.querySelector('iframe');
 
-urlBtn.addEventListener('click', getYoutubeVideo);
+getYTVideoBtn.addEventListener('click', getYoutubeVideo);
 form.addEventListener('submit', onSubmit);
-
 
 function getYoutubeVideo() {
     let url = document.querySelector('.link-input').value;
