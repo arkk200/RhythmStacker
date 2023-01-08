@@ -35,17 +35,17 @@ canvas {
   flex-direction: column;
   row-gap: 1.25rem;
 }
-.ui .document .map-info .map-info__inputs .input {
+.ui .document .map-info .map-info__inputs input-element > div {
   display: flex;
   flex-direction: column;
   row-gap: 0.75rem;
 }
-.ui .document .map-info .map-info__inputs .input label {
+.ui .document .map-info .map-info__inputs input-element > div label {
   border-top: 3px solid white;
   border-right: 3px solid white;
   text-decoration: underline white;
 }
-.ui .document .map-info .map-info__inputs .input input {
+.ui .document .map-info .map-info__inputs input-element > div input {
   box-sizing: border-box;
   outline: none;
   background-color: rgba(0, 0, 0, 0);
@@ -54,15 +54,15 @@ canvas {
   padding: 0.25rem;
   font-size: 1.5rem;
 }
-.ui .document .map-info .map-info__inputs .input input[type=text] {
+.ui .document .map-info .map-info__inputs input-element > div input[type=text] {
   border-bottom: 3px solid white;
   border-left: 3px solid white;
   padding: 0.1rem 0.3rem;
 }
-.ui .document .map-info .map-info__inputs .input input[type=text].link-input {
+.ui .document .map-info .map-info__inputs input-element > div input[type=text].url-input {
   text-decoration: underline rgb(118, 118, 118);
 }
-.ui .document .map-info .map-info__inputs .input input[type=button] {
+.ui .document .map-info .map-info__inputs input-element > div input[type=button] {
   border: 3px solid white;
 }
 .ui .document .map-info iframe {

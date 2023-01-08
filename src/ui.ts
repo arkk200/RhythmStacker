@@ -6,7 +6,7 @@ getYTVideoBtn?.addEventListener('click', getYoutubeVideo);
 form?.addEventListener('submit', onSubmit);
 
 function getYoutubeVideo() {
-    let url = (<HTMLInputElement>document.querySelector('.link-input')).value;
+    let url = (<HTMLInputElement>document.querySelector('.url-input')).value;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     if (match && match[2].length == 11 && iframe) {
