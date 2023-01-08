@@ -18,8 +18,11 @@ canvas {
   grid-template-columns: repeat(3, 1fr);
   row-gap: 3rem;
   color: #fff;
+  overflow: hidden;
 }
 .ui .document .map-info {
+  position: relative;
+  right: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -70,6 +73,8 @@ canvas {
   border: 3px solid white;
 }
 .ui .document .stack-editor {
+  position: relative;
+  left: 100%;
   width: 100%;
   height: 100%;
   display: flex;

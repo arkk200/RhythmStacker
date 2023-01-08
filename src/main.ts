@@ -22,11 +22,12 @@ export class Main extends Init {
     stackForBack: THREE.Mesh;
     editor: Editor;
     musicList: MusicList;
-    prevStep?: number;
-    prevPageName: string;
+    current: { step?: number, pageName: string }
+    prev: { step?: number, pageName: string }
     musicObjectsGroup!: THREE.Group;
     optionStacks: THREE.Mesh[];
     tl: GSAPTimeline;
+    editorTl: GSAPTimeline;
 
     constructor() {
         super();
@@ -36,6 +37,7 @@ export class Main extends Init {
         this.setPages.bind(this)();
         this.setMainEvents.bind(this)();
     }
+
     setMainObjects() {
         this.stackForStart = getStack({ side: 5, height: 40 }, { color: "white", name: "Option", step: 1 }, [0, -24, 0])
         this.scene.add(this.stackForStart);
@@ -71,17 +73,8 @@ export class Main extends Init {
     setMainEvents() {
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
     }
-    getIntersetObj(e: MouseEvent) {
-        const mousePos = {
-            x: (e.clientX / window.innerWidth) * 2 - 1,
-            y: -(e.clientY / window.innerHeight) * 2 + 1
-        };
-        const raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(mousePos, this.camera);
-        return raycaster.intersectObjects(this.scene.children)[0]?.object;
-    }
     onMouseDown(e: MouseEvent) {
-        if(this?.tl?.isActive()) return;
+        if(this?.tl?.isActive() || this?.editorTl?.isActive()) return;
         const intersectObject: SteppedObject = this.getIntersetObj.bind(this)(e);
 
         if(!intersectObject) return;
@@ -102,17 +95,11 @@ export class Main extends Init {
                     gsap.to(stack.position, { y: -24, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
                     gsap.to(stack.scale, { x: 1, z: 1, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
                 });
-                this.prevStep = intersectObject.step;
-                this.prevPageName = intersectObject.name;
                 break;
 
             case 1:
-                if (this.scene.getObjectByName("musicObjectsGroup")) {
-                    this.tl = gsap.timeline();
-                    this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1.2, ease: "power4.out" });
-                    this.tl.to({}, { onUpdate: () => { this.scene.remove(this.musicObjectsGroup) } });
-                }
-                if (this.prevPageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
+                this.musicList.removePage(this.scene, this.tl);
+                if (this.prev?.pageName === "Editor") gsap.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                 else gsap.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
                 gsap.to(this.stackForStart.position, {x: -5, z: -5, y: -20, duration: 1, ease: "power4.out"}); gsap.to(this.stackForStart.scale, {x:0.5, z:0.5, duration: 1, ease: "power4.out"});
 
@@ -121,20 +108,14 @@ export class Main extends Init {
                     gsap.to(stack.position, { x: stackPositionsToMove[index], y: -10, z: stackPositionsToMove.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                     gsap.to(stack.scale, { x: 0.6, y: 1, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                 });
-                this.prevStep = intersectObject.step;
-                this.prevPageName = intersectObject.name;
                 break;
 
             case 2:
                 if (intersectObject.name === "Editor") {
-                    if (this?.musicObjectsGroup) {
-                        this.tl = gsap.timeline();
-                        this.tl.to(this.musicObjectsGroup.position, { x: 1, duration: 1, ease: "power4.out" });
-                        this.tl.to({}, { onUpdate: () => { this.scene.remove(this.musicObjectsGroup) } });
-                    }
+                    this.musicList.removePage(this.scene, this.tl);
                     this.tl = gsap.timeline();
 
-                    if (this.prevStep === 2 && this.prevPageName !== "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "poewr4.out" });
+                    if (this.prev.step === 2 && this.prev.pageName !== "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "poewr4.out" });
                     this.tl.to(this.camera.position, { x: 0, y: 0, z: 32, duration: 1, ease: "power3.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
 
                     this.optionStacks.forEach((stack, index) => {
@@ -142,11 +123,11 @@ export class Main extends Init {
                         gsap.to(stack.scale, { x: 0.4, y: 0.3, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
                 } else {
-                    if(this.scene.getObjectByName("musicObjectsGroup")) {
-                        this.scene.remove(this.musicObjectsGroup);
-                    }
+                    const musicObjectsGroup = this.scene.getObjectByName("musicObjectsGroup")
+                    musicObjectsGroup && this.scene.remove(musicObjectsGroup);
+
                     this.tl = gsap.timeline();
-                    if (this.prevPageName === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
+                    if (this.prev.pageName === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                     this.tl.to(this.camera.position, { x: 38, y: 32, z: 26, duration: 1.2, ease: "power3.inOut" });
                     
                     gsap.to(intersectObject.position, { x: 0, y: -6, z: 0, duration: 1, ease: "power4.out" });
@@ -161,21 +142,32 @@ export class Main extends Init {
                     });
                 }
                 gsap.to(this.stackForStart.position, {y: -40, duration: 1.6, ease: "power4.out"});
-                this.prevStep = intersectObject.step;
-                this.prevPageName = intersectObject.name;
         }
+        if(this.step) this.current = { step: intersectObject.step, pageName: intersectObject.name }
+
         this.intersectTrigger.bind(this)(intersectObject.name);
+
+        this.prev = { ...this.current }
+    }
+    getIntersetObj(e: MouseEvent) {
+        const mousePos = {
+            x: (e.clientX / window.innerWidth) * 2 - 1,
+            y: -(e.clientY / window.innerHeight) * 2 + 1
+        };
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mousePos, this.camera);
+        return raycaster.intersectObjects(this.scene.children)[0]?.object;
     }
     intersectTrigger(optionStackName: string) {
-        if(this.prevPageName !== "Editor") this.editor.removeObjects.bind(this)();
+        if(this.current.pageName !== "Editor" && this.prev?.pageName === "Editor") this.editor.removePage(this.scene, this.editorTl);
         switch(optionStackName) {
             case "FamousMusics":
             case "FavoriteMusics":
             case "AllMusics":
-                this.musicList.setObjects.bind(this)(musicListJSON);
+                this.musicList.setPage(this.scene, this.tl, musicListJSON);
                 break;
             case "Editor":
-                this.editor.setObjects.bind(this)();
+                this.editor.setPage(this.scene, this.tl);
                 break;
         }
     }
