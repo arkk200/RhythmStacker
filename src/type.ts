@@ -6,16 +6,12 @@ export type TypeVector3 = {
 
 export type VectorArray = [number, number, number]
 
-export interface SteppedObject extends THREE.Object3D {
+export interface PartObject extends THREE.Object3D {
+    part?: string,
     step?: number
 }
 
-export interface SteppedMesh extends THREE.Mesh {
+export interface PartMesh extends THREE.Mesh {
+    part?: string,
     step?: number
 };
-
-export interface StackAttribute {
-    color?: string,
-    name?: string,
-    step?: number
-}

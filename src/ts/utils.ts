@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { StackAttribute, SteppedMesh, TypeVector3, VectorArray } from '../type';
+import { PartMesh, TypeVector3, VectorArray } from '../type';
 
 export function lerp(a: TypeVector3, b: TypeVector3, t: number) {
     return [
@@ -9,20 +9,40 @@ export function lerp(a: TypeVector3, b: TypeVector3, t: number) {
     ];
 }
 
-export function getStack({ side=1, height=1 }, { color="white", name="", step=null }: {color?: string, name?: string, step?: number | null}, position: VectorArray = [0, 0, 0]) {
-    const mesh: SteppedMesh = new THREE.Mesh(
+export function getStack({ side=1, height=1 }, color: string ="white", position: VectorArray = [0, 0, 0]): THREE.Mesh {
+    const mesh = new THREE.Mesh(
         new THREE.BoxGeometry(side, height, side),
         new THREE.MeshPhongMaterial({ color })
-        // new THREE.MeshBasicMaterial({ color })
     );
-    mesh.name = name;
+    mesh.position.set(...position);
+    return mesh;
+}
+
+
+
+export function getPartStack(size: { side: number, height: number }, { color="white", part="", step } : { color: string, part: string, step?: number }, position: VectorArray = [0, 0, 0]
+): PartMesh {
+    const mesh: PartMesh = getStack(size, color);
+    mesh.part = part;
     step && (mesh.step = step)
     mesh.position.set(...position);
     return mesh;
 }
 
-export function createOptionStack(attribute: StackAttribute, position: VectorArray) {
-    return getStack({ side: 4, height: 20 }, { ...attribute }, position);
+export function createOptionPartStack(attribute: { color: string, part: string, step: number }, position: VectorArray): PartMesh {
+    return getPartStack({ side: 4, height: 20 }, { ...attribute }, position);
+}
+
+
+
+export function getIntersectObject(e: MouseEvent, scene: THREE.Scene, camera: THREE.Camera): THREE.Object3D | undefined {
+    const mouse = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1
+    };
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    return raycaster.intersectObjects(scene.children)[0]?.object;
 }
 
 export class Stack {
