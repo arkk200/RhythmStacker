@@ -4,10 +4,11 @@ import { getIntersectObject } from './utils';
 import { StepMesh, StepObject } from '../type';
 
 export class MusicList {
-    musicListGroup: THREE.Group;
+    step: number;
     scene: THREE.Scene;
     camera: THREE.Camera;
-    step: number;
+    musicListGroup: THREE.Group;
+    selectedMusicScreen: THREE.Mesh;
 
     constructor(scene: THREE.Scene, camera: THREE.Camera) {
         this.step = 0;
@@ -40,13 +41,15 @@ export class MusicList {
             });
         }}, ">-1.2");
 
-
-        const selectedMusicScreen = new THREE.Mesh(
-            new THREE.BoxGeometry(10, 4, 1),
-            new THREE.MeshPhongMaterial({ color: 'red'})
+        const selectedMusicMaterial = new THREE.MeshPhongMaterial({ color: "red" });
+        this.selectedMusicScreen = new THREE.Mesh(
+            new THREE.BoxGeometry(10, 10, 1),
+            selectedMusicMaterial
         );
+        this.selectedMusicScreen.rotateY(45 * Math.PI / 180);
+        this.selectedMusicScreen.position.set(1, 0, -11);
         
-        this.scene
+        this.scene.add(this.selectedMusicScreen);
     }
 
     setEvents() {
@@ -72,13 +75,21 @@ export class MusicList {
                 console.log('MusicList Home');
                 break;
             case 1:
+                gsap.to(intersectObject.position, { z: -11, duration: 1, ease: "power4.out" });
+                const filteredStacks = this.musicListGroup.children.filter(stack => stack !== intersectObject);
+                filteredStacks.forEach(stack => {
+                    gsap.to(stack.position, { z: -12, duration: 1, ease: "power4.out" });
+                });
+                if(!(intersectObject instanceof THREE.Mesh)) return;
+                // THREE.Material에 color 속성이 없는 버그로 <any> 사용
+                (<any>this.selectedMusicScreen.material).color = intersectObject.material.color;
                 console.log('Music Selected');
                 break;
         }
     }
 
     removePage() {
-        const musicListGroup = this.scene.getObjectByName("musicListGroup");
-        musicListGroup && this.scene.remove(musicListGroup);
+        this.musicListGroup && this.scene.remove(this.musicListGroup);
+        this.selectedMusicScreen && this.scene.remove(this.selectedMusicScreen);
     }
 }

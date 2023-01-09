@@ -24,7 +24,7 @@ export class Main extends Init {
     musicList: MusicList;
     current: { step?: number, part: string }
     prev: { step?: number, part: string }
-    optionStacks: THREE.Mesh[];
+    optionStacks: THREE.Group;
     tl: GSAPTimeline;
     editorTl: GSAPTimeline;
 
@@ -40,27 +40,30 @@ export class Main extends Init {
     setMainObjects() {
         this.stackForStart = getPartStack({ side: 5, height: 40 }, { color: "white", part: "Option", step: 1 }, [0, -24, 0])
         this.scene.add(this.stackForStart);
+
+        this.optionStacks = new THREE.Group();
+        this.scene.add(this.optionStacks);
+
         this.stackToGoFamousMusics = createOptionPartStack({ color: "red", part: "FamousMusics", step: 2 }, [-5, -24, 3]);
-        this.scene.add(this.stackToGoFamousMusics);
+        this.optionStacks.add(this.stackToGoFamousMusics);
+        // this.scene.add(this.stackToGoFamousMusics);
 
         this.stackToGoFavoriteMusics = createOptionPartStack({ color: "orange", part: "FavoriteMusics", step: 2 }, [1, -24, 4]);
-        this.scene.add(this.stackToGoFavoriteMusics);
+        this.optionStacks.add(this.stackToGoFavoriteMusics);
+        // this.scene.add(this.stackToGoFavoriteMusics);
 
         this.stackToGoAllMusics = createOptionPartStack({ color: "yellow", part: "AllMusics", step: 2 }, [4, -24, 1]);
-        this.scene.add(this.stackToGoAllMusics);
+        this.optionStacks.add(this.stackToGoAllMusics);
+        // this.scene.add(this.stackToGoAllMusics);
 
         this.stackToGoEditor = createOptionPartStack({ color: "green", part: "Editor", step: 2 }, [3, -24, -5]);
-        this.scene.add(this.stackToGoEditor);
+        this.optionStacks.add(this.stackToGoEditor);
+        // this.scene.add(this.stackToGoEditor);
+
+        console.log(this.optionStacks);
 
         this.stackForBack = getPartStack({ side: 1, height: 1 }, { color: "white", part: "Back" }, [-2, 7, 4])
         this.scene.add(this.stackForBack);
-
-        this.optionStacks = [
-            this.stackToGoFamousMusics,
-            this.stackToGoFavoriteMusics,
-            this.stackToGoAllMusics,
-            this.stackToGoEditor
-        ];
     }
 
     setPages() {
@@ -89,7 +92,7 @@ export class Main extends Init {
                 this.tl.to(this.stackForStart.position, { x:0, z: 0, y: -24, duration: 1, ease: "power4.out", delay: 0.5 });
                 this.tl.to(this.stackForStart.scale, { x:1, z:1, duration: 1, ease: "power4.out", delay: 0.5 }, "<-0.5");
                 
-                this.optionStacks.forEach((stack, index) => {
+                this.optionStacks.children.forEach((stack, index) => {
                     gsap.to(stack.position, { y: -24, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
                     gsap.to(stack.scale, { x: 1, z: 1, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05 });
                 });
@@ -103,7 +106,7 @@ export class Main extends Init {
                 gsap.to(this.stackForStart.position, {x: -5, z: -5, y: -20, duration: 1, ease: "power4.out"}); gsap.to(this.stackForStart.scale, {x:0.5, z:0.5, duration: 1, ease: "power4.out"});
 
                 stackPositionsToMove = [-5, 1, 4, 3];
-                this.optionStacks.forEach((stack, index) => {
+                this.optionStacks.children.forEach((stack, index) => {
                     gsap.to(stack.position, { x: stackPositionsToMove[index], y: -10, z: stackPositionsToMove.at(-index -1), duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                     gsap.to(stack.scale, { x: 0.6, y: 1, z: 0.6, duration: index*0.05 + 1, ease: "power4.out", delay: index*0.05});
                 });
@@ -117,7 +120,7 @@ export class Main extends Init {
                     if (this.prev.step === 2 && this.prev.part !== "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "poewr4.out" });
                     this.tl.to(this.camera.position, { x: 0, y: 0, z: 32, duration: 1, ease: "power3.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
 
-                    this.optionStacks.forEach((stack, index) => {
+                    this.optionStacks.children.forEach((stack, index) => {
                         gsap.to(stack.position, {x: index*2 - 14, y: 8, z: 0, duration: 1.2, delay: index*0.05, ease: "power2.inOut"});
                         gsap.to(stack.scale, { x: 0.4, y: 0.3, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
@@ -131,7 +134,7 @@ export class Main extends Init {
                     gsap.to(intersectObject.position, { x: 0, y: -6, z: 0, duration: 1, ease: "power4.out" });
                     gsap.to(intersectObject.scale, {x: 0.8, y: 1, z: 0.8, duration: 1, ease: "power4.out"});
                     
-                    const filteredStacks = this.optionStacks.filter(stack => stack !== intersectObject);
+                    const filteredStacks = this.optionStacks.children.filter(stack => stack !== intersectObject);
                     
                     stackPositionsToMove = [0.5, 4, 5];
                     filteredStacks.forEach((stack, index) => {
