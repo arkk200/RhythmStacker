@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { loopArray } from './type';
 
 export class Init {
     scene!: THREE.Scene;
@@ -8,10 +9,18 @@ export class Init {
     controls!: OrbitControls;
     lightTarget!: THREE.Object3D<THREE.Event>;
     light!: THREE.SpotLight;
+    loopArray: loopArray;
+    clock: THREE.Clock;
+    delta: number;
+    
     constructor() {
         this.setInitialSettings.bind(this)();
         this.setLights.bind(this)();
         this.setEvents.bind(this)();
+
+        this.clock = new THREE.Clock();
+        this.delta = 0;
+        this.loopArray = [];
 
         this.animate.bind(this)();
     }
@@ -61,6 +70,8 @@ export class Init {
     animate() {
         window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
+        this.delta = this.clock.getDelta();
+        this.loopArray.forEach(loop => loop(this.delta));
     }
 }
 

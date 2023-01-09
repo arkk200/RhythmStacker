@@ -1,39 +1,49 @@
 import gsap from 'gsap';
 import * as THREE from 'three';
 import { getIntersectObject } from './utils';
-import { StepMesh, StepObject } from '../type';
+import { loopArray, musicList, MusicMesh, MusicObject, StepMesh } from '../type';
+import { Game } from './Game';
 
 export class MusicList {
     step: number;
     scene: THREE.Scene;
-    camera: THREE.Camera;
+    camera: THREE.OrthographicCamera;
     musicListGroup: THREE.Group;
-    selectedMusicScreen: THREE.Mesh;
+    selectedMusicScreen: StepMesh;
+    game: Game;
+    loopArray: loopArray;
+    musicListPageGroup: THREE.Group;
+    prevName: string
 
-    constructor(scene: THREE.Scene, camera: THREE.Camera) {
+    constructor(scene: THREE.Scene, camera: THREE.OrthographicCamera, loopArray: loopArray) {
         this.step = 0;
         this.scene = scene;
         this.camera = camera;
+        this.loopArray = loopArray;
+        
         this.setEvents();
     }
+    
+    showPage(tl: GSAPTimeline, json: { musicList: musicList[]; }) {
+        this.musicListPageGroup = new THREE.Group();
 
-    setPage(tl: GSAPTimeline, json: { musicList: { title: string; artist: string; }[]; }) {
         const musicList = json.musicList;
         this.musicListGroup = new THREE.Group();
         this.musicListGroup.name = "musicListGroup";
 
         musicList.forEach((music, index) => {
-            const mesh: StepMesh = new THREE.Mesh(
+            const mesh: MusicMesh = new THREE.Mesh(
                 new THREE.BoxGeometry(10, 4, 1),
                 new THREE.MeshPhongMaterial({ color: new THREE.Color(`hsl(${index * 10}, 100%, 50%)`) })
             );
             mesh.position.set(27, -index * 5, -12);
             mesh.name = `music-${index}`;
+            mesh.info = music;
             mesh.step = 1;
             this.musicListGroup.add(mesh);
         });
         this.musicListGroup.position.set(0, 0, 0);
-        this.scene.add(this.musicListGroup);
+        this.musicListPageGroup.add(this.musicListGroup);
 
         tl.to({}, { onUpdate: () => {
             this.musicListGroup.children.forEach((mesh, index) => {
@@ -41,15 +51,20 @@ export class MusicList {
             });
         }}, ">-1.2");
 
-        const selectedMusicMaterial = new THREE.MeshPhongMaterial({ color: "red" });
         this.selectedMusicScreen = new THREE.Mesh(
             new THREE.BoxGeometry(10, 10, 1),
-            selectedMusicMaterial
+            new THREE.MeshPhongMaterial({ color: "white" })
         );
         this.selectedMusicScreen.rotateY(45 * Math.PI / 180);
         this.selectedMusicScreen.position.set(1, 0, -11);
+        this.selectedMusicScreen.step = 2;
         
-        this.scene.add(this.selectedMusicScreen);
+        this.musicListPageGroup.add(this.selectedMusicScreen);
+        this.scene.add(this.musicListPageGroup);
+    }
+
+    startGame(musicInfo: musicList) {
+        this.game = new Game(this.scene, this.camera, this.loopArray, musicInfo);
     }
 
     setEvents() {
@@ -57,14 +72,14 @@ export class MusicList {
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
     }
     onScroll(e: WheelEvent) {
-        if(!this?.musicListGroup) return;
+        if(!this?.musicListPageGroup) return;
         const y = e.deltaY;
         this.musicListGroup.position.y += y * 0.025;
     }
     onMouseDown(e: MouseEvent) { // MusicObjectGroup에 클릭만 감지
-        const intersectObject: StepObject | undefined = getIntersectObject(e, this.scene, this.camera);
+        const intersectObject: MusicObject | undefined = getIntersectObject(e, this.scene, this.camera);
         if(!intersectObject) return;
-        if(!this.musicListGroup?.getObjectByName(intersectObject.name)) return;
+        if(!this.musicListPageGroup?.getObjectByName(intersectObject.name)) return;
 
         if(intersectObject.step) {
             this.step = intersectObject.step;
@@ -81,15 +96,18 @@ export class MusicList {
                     gsap.to(stack.position, { z: -12, duration: 1, ease: "power4.out" });
                 });
                 if(!(intersectObject instanceof THREE.Mesh)) return;
-                // THREE.Material에 color 속성이 없는 버그로 <any> 사용
-                (<any>this.selectedMusicScreen.material).color = intersectObject.material.color;
+
+                (<typeof intersectObject.material>this.selectedMusicScreen.material).color = intersectObject.material.color;
                 console.log('Music Selected');
                 break;
+            case 2:
+                if(!this.musicListGroup.getObjectByName(intersectObject.name)) return;
+                intersectObject?.info && this.startGame(intersectObject.info);
         }
+        intersectObject?.name && (this.prevName = intersectObject.name)
     }
 
-    removePage() {
-        this.musicListGroup && this.scene.remove(this.musicListGroup);
-        this.selectedMusicScreen && this.scene.remove(this.selectedMusicScreen);
+    hidePage() {
+        this.musicListPageGroup && this.scene.remove(this.musicListPageGroup);
     }
 }

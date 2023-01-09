@@ -6,14 +6,14 @@ export class Editor {
     editorObjectsGroup: THREE.Group;
     baseStack: THREE.Mesh;
     scene: THREE.Scene;
-    camera: THREE.Camera;
+    camera: THREE.OrthographicCamera;
 
-    constructor(scene: THREE.Scene, camera: THREE.Camera) {
+    constructor(scene: THREE.Scene, camera: THREE.OrthographicCamera) {
         this.scene = scene;
         this.camera = camera;
     }
 
-    setPage(tl: GSAPTimeline) {
+    showPage(tl: GSAPTimeline) {
 
         const mapInfo = <HTMLDivElement>document.querySelector('.map-info');
         const stackEditor = <HTMLDivElement>document.querySelector('.stack-editor');
@@ -33,7 +33,7 @@ export class Editor {
         // debugger;
         tl.to(this.editorObjectsGroup.position, { y: 0, duration: 1, ease: "power4.out" });
     }
-    removePage(editorTl: GSAPTimeline) {
+    hidePage(editorTl: GSAPTimeline) {
         const mapInfo = <HTMLDivElement>document.querySelector('.map-info');
         const stackEditor = <HTMLDivElement>document.querySelector('.stack-editor');
         editorTl = gsap.timeline();

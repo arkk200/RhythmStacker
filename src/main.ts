@@ -68,7 +68,7 @@ export class Main extends Init {
 
     setPages() {
         this.editor = new Editor(this.scene, this.camera);
-        this.musicList = new MusicList(this.scene, this.camera);
+        this.musicList = new MusicList(this.scene, this.camera, this.loopArray);
     }
 
     setMainEvents() {
@@ -99,7 +99,7 @@ export class Main extends Init {
                 break;
 
             case 1:
-                this.musicList.removePage();
+                this.musicList.hidePage();
                 this.tl = gsap.timeline();
                 if (this.prev?.part === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                 else this.tl.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
@@ -114,7 +114,7 @@ export class Main extends Init {
 
             case 2:
                 if (intersectObject.part === "Editor") {
-                    this.musicList.removePage();
+                    this.musicList.hidePage();
                     this.tl = gsap.timeline();
 
                     if (this.prev.step === 2 && this.prev.part !== "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "poewr4.out" });
@@ -125,7 +125,7 @@ export class Main extends Init {
                         gsap.to(stack.scale, { x: 0.4, y: 0.3, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
                 } else {
-                    this.musicList.removePage();
+                    this.musicList.hidePage();
 
                     this.tl = gsap.timeline();
                     if (this.prev.part === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
@@ -151,15 +151,15 @@ export class Main extends Init {
         this.prev = { ...this.current }
     }
     showPage(optionStackName: string) {
-        if(this.current.part !== "Editor" && this.prev?.part === "Editor") this.editor.removePage(this.editorTl);
+        if(this.current.part !== "Editor" && this.prev?.part === "Editor") this.editor.hidePage(this.editorTl);
         switch(optionStackName) {
             case "FamousMusics":
             case "FavoriteMusics":
             case "AllMusics":
-                this.musicList.setPage(this.tl, musicListJSON);
+                this.musicList.showPage(this.tl, musicListJSON);
                 break;
             case "Editor":
-                this.editor.setPage(this.tl);
+                this.editor.showPage(this.tl);
                 break;
         }
     }
