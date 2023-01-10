@@ -9,11 +9,11 @@ export class MusicList {
     scene: THREE.Scene;
     camera: THREE.OrthographicCamera;
     musicListGroup: THREE.Group;
-    selectedMusicScreen: StepMesh;
+    musicScreen: StepMesh;
     game: Game;
     loopArray: loopArray;
     musicListPageGroup: THREE.Group;
-    prevName: string
+    selectedMusic: MusicMesh
 
     constructor(scene: THREE.Scene, camera: THREE.OrthographicCamera, loopArray: loopArray) {
         this.step = 0;
@@ -51,15 +51,15 @@ export class MusicList {
             });
         }}, ">-1.2");
 
-        this.selectedMusicScreen = new THREE.Mesh(
+        this.musicScreen = new THREE.Mesh(
             new THREE.BoxGeometry(10, 10, 1),
             new THREE.MeshPhongMaterial({ color: "white" })
         );
-        this.selectedMusicScreen.rotateY(45 * Math.PI / 180);
-        this.selectedMusicScreen.position.set(1, 0, -11);
-        this.selectedMusicScreen.step = 2;
+        this.musicScreen.rotateY(45 * Math.PI / 180);
+        this.musicScreen.position.set(1, 0, -11);
+        this.musicScreen.step = 2;
         
-        this.musicListPageGroup.add(this.selectedMusicScreen);
+        this.musicListPageGroup.add(this.musicScreen);
         this.scene.add(this.musicListPageGroup);
     }
 
@@ -97,14 +97,15 @@ export class MusicList {
                 });
                 if(!(intersectObject instanceof THREE.Mesh)) return;
 
-                (<typeof intersectObject.material>this.selectedMusicScreen.material).color = intersectObject.material.color;
+                (<typeof intersectObject.material>this.musicScreen.material).color = intersectObject.material.color;
                 console.log('Music Selected');
                 break;
             case 2:
-                if(!this.musicListGroup.getObjectByName(intersectObject.name)) return;
-                intersectObject?.info && this.startGame(intersectObject.info);
+                if(!this.musicListPageGroup.getObjectByName(intersectObject.name)) return;
+                if(!this?.selectedMusic) return;
+                this.selectedMusic?.info && this.startGame(this.selectedMusic.info);
         }
-        intersectObject?.name && (this.prevName = intersectObject.name)
+        intersectObject?.name && (this.selectedMusic = <MusicMesh>intersectObject)
     }
 
     hidePage() {

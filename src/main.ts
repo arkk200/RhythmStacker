@@ -58,9 +58,6 @@ export class Main extends Init {
 
         this.stackToGoEditor = createOptionPartStack({ color: "green", part: "Editor", step: 2 }, [3, -24, -5]);
         this.optionStacks.add(this.stackToGoEditor);
-        // this.scene.add(this.stackToGoEditor);
-
-        console.log(this.optionStacks);
 
         this.stackForBack = getPartStack({ side: 1, height: 1 }, { color: "white", part: "Back" }, [-2, 7, 4])
         this.scene.add(this.stackForBack);
@@ -99,7 +96,7 @@ export class Main extends Init {
                 break;
 
             case 1:
-                this.musicList.hidePage();
+                
                 this.tl = gsap.timeline();
                 if (this.prev?.part === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 1, ease: "sine.inOut", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                 else this.tl.to(this.camera.position, { x: 32, z: 32, duration: 1, ease: "power4.out" });
@@ -114,7 +111,6 @@ export class Main extends Init {
 
             case 2:
                 if (intersectObject.part === "Editor") {
-                    this.musicList.hidePage();
                     this.tl = gsap.timeline();
 
                     if (this.prev.step === 2 && this.prev.part !== "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "poewr4.out" });
@@ -125,8 +121,6 @@ export class Main extends Init {
                         gsap.to(stack.scale, { x: 0.4, y: 0.3, z: 0.4, duration: 1.2, delay: index*0.05, ease: "power3.inOut"});
                     })
                 } else {
-                    this.musicList.hidePage();
-
                     this.tl = gsap.timeline();
                     if (this.prev.part === "Editor") this.tl.to(this.camera.position, { x: 32, y: 32, z: 32, duration: 0.8, ease: "power4.out", onUpdate: () => { this.camera.lookAt(0, 0, 0) } });
                     this.tl.to(this.camera.position, { x: 38, y: 32, z: 26, duration: 1.2, ease: "power3.inOut" });
@@ -152,6 +146,7 @@ export class Main extends Init {
     }
     showPage(optionStackName: string) {
         if(this.current.part !== "Editor" && this.prev?.part === "Editor") this.editor.hidePage(this.editorTl);
+        this.musicList.hidePage();
         switch(optionStackName) {
             case "FamousMusics":
             case "FavoriteMusics":
